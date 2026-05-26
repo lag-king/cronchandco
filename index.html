@@ -16,14 +16,15 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 .screen.active{display:flex}
 
 /* ── LANDING ── */
-#screen-landing{background:var(--red);align-items:center;justify-content:center;padding:44px 24px;text-align:center;position:relative;overflow:hidden}
+#screen-landing{background:var(--cream);flex-direction:column;overflow:hidden}
+.land-top{background:var(--red);padding:44px 24px 36px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;overflow:hidden}
 .bg-c{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,0.1);pointer-events:none}
 .bg-c.a{width:440px;height:440px;top:-200px;right:-160px}
 .bg-c.b{width:300px;height:300px;bottom:-100px;left:-100px}
 .land-logo{font-family:'Playfair Display',serif;color:#fff;font-size:36px;font-weight:900;line-height:1.0;margin-bottom:5px;position:relative;z-index:1}
-.land-tag{color:rgba(255,255,255,0.58);font-size:11px;font-weight:300;letter-spacing:2px;text-transform:uppercase;margin-bottom:52px;position:relative;z-index:1}
+.land-tag{color:rgba(255,255,255,0.58);font-size:11px;font-weight:300;letter-spacing:2px;text-transform:uppercase;margin-bottom:36px;position:relative;z-index:1}
 .land-q{color:#fff;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.3;margin-bottom:8px;position:relative;z-index:1}
-.land-sub{color:rgba(255,255,255,0.58);font-size:13px;margin-bottom:36px;position:relative;z-index:1;font-weight:300}
+.land-sub{color:rgba(255,255,255,0.58);font-size:13px;margin-bottom:28px;position:relative;z-index:1;font-weight:300}
 .land-btns{display:flex;flex-direction:column;gap:14px;width:100%;max-width:380px;position:relative;z-index:1}
 .land-btn{padding:20px;border-radius:16px;cursor:pointer;transition:background 0.15s;text-align:left;display:block;width:100%;border:none;-webkit-appearance:none}
 .land-btn-kochi{background:#fff;color:var(--red)}
@@ -34,16 +35,26 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 .lbt-hint{font-size:11px;opacity:0.58;margin-top:3px;display:block;font-weight:300;font-family:'DM Sans',sans-serif}
 .land-arrow{font-size:22px;flex-shrink:0;margin-left:12px}
 
-/* ── LANDING FOOTER ── */
-.land-footer{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:36px;position:relative;z-index:1;width:100%;max-width:380px}
-.land-divider{width:100%;height:1px;background:rgba(255,255,255,0.15)}
-.land-socials{display:flex;gap:20px;align-items:center}
-.land-social-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.13);border:1.5px solid rgba(255,255,255,0.25);text-decoration:none;transition:background 0.15s}
-.land-social-btn:hover{background:rgba(255,255,255,0.22)}
-.land-social-btn svg{width:20px;height:20px;fill:#fff}
-.land-pages{display:flex;gap:10px;width:100%}
-.land-page-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;color:#fff;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;letter-spacing:0.2px}
-.land-page-btn svg{width:15px;height:15px;fill:rgba(255,255,255,0.7);flex-shrink:0}
+/* ── LANDING BOTTOM (white) ── */
+.land-bottom{background:var(--cream);padding:24px 24px 40px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.land-combo{width:100%;max-width:380px;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:20px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.land-combo:active{background:#fdf9f7}
+.land-combo-split{display:flex;align-items:center}
+.land-combo-left{flex:1;text-align:center}
+.land-combo-main{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;color:var(--text);line-height:1.3}
+.land-combo-green{color:#3a7d44}
+.land-combo-red{color:var(--red)}
+.land-combo-plus{font-size:16px;flex-shrink:0;padding:0 10px;line-height:1}
+.land-combo-right{flex:1;text-align:center}
+.land-combo-val{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;color:var(--red);transition:opacity 0.3s ease,transform 0.3s ease;display:block;line-height:1.3}
+.land-combo-val.out{opacity:0;transform:translateY(6px)}
+.land-combo-hint{font-size:10px;color:var(--muted);margin-top:12px;font-weight:300;text-align:center}
+.land-combo-link{display:block;font-size:12px;color:var(--red);margin-top:12px;text-decoration:none;font-weight:500;text-align:center;border-top:1px solid var(--border);padding-top:12px}
+.land-action-btns{display:flex;gap:10px;width:100%;max-width:380px}
+.land-action-btn{flex:1;padding:13px;background:#fff;border:1.5px solid var(--border);border-radius:12px;color:var(--text);text-decoration:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;text-align:center}
+.land-socials{display:flex;gap:16px;align-items:center;margin-top:4px}
+.land-social-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#fff;border:1.5px solid var(--border);text-decoration:none}
+.land-social-btn svg{width:20px;height:20px;fill:var(--red)}
 
 /* ── HEADER ── */
 .app-header{background:var(--red);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(200,73,58,0.28)}
@@ -144,51 +155,58 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 
 <!-- SCREEN 1: LANDING -->
 <div id="screen-landing" class="screen active">
-  <div class="bg-c a"></div><div class="bg-c b"></div>
-  <div class="land-logo">cronch and co.</div>
-  <div class="land-tag">small batch · made with love</div>
-  <div class="land-q">how would you like to order?</div>
-  <div class="land-sub">we'll show what's available for you</div>
-  <div class="land-btns">
-    <button class="land-btn land-btn-kochi" id="btn-kochi">
-      <div class="land-btn-inner">
-        <div class="lbt-text">
-          <span class="lbt-title">📍 Pickup / Porter — Kochi</span>
-          <span class="lbt-hint">All sizes · Porter delivery or self pickup</span>
+  <!-- red top: order section -->
+  <div class="land-top">
+    <div class="bg-c a"></div><div class="bg-c b"></div>
+    <div class="land-logo">cronch and co.</div>
+    <div class="land-tag">small batch · homemade · made with love</div>
+    <div class="land-q">how would you like to order?</div>
+    <div class="land-sub">we'll show what's available for you</div>
+    <div class="land-btns">
+      <button class="land-btn land-btn-kochi" id="btn-kochi">
+        <div class="land-btn-inner">
+          <div class="lbt-text">
+            <span class="lbt-title">📍 Pickup / Porter — Kochi</span>
+            <span class="lbt-hint">All sizes · Porter delivery or self pickup</span>
+          </div>
+          <span class="land-arrow">→</span>
         </div>
-        <span class="land-arrow">→</span>
-      </div>
-    </button>
-    <button class="land-btn land-btn-india" id="btn-courier">
-      <div class="land-btn-inner">
-        <div class="lbt-text">
-          <span class="lbt-title">📦 Courier — India wide</span>
-          <span class="lbt-hint">260g & 330g plastic jars · shipped to your door</span>
+      </button>
+      <button class="land-btn land-btn-india" id="btn-courier">
+        <div class="land-btn-inner">
+          <div class="lbt-text">
+            <span class="lbt-title">📦 Courier — India wide</span>
+            <span class="lbt-hint">260g & 330g plastic jars · shipped to your door</span>
+          </div>
+          <span class="land-arrow">→</span>
         </div>
-        <span class="land-arrow">→</span>
-      </div>
-    </button>
-  </div>
-  <div class="land-footer">
-    <div class="land-divider"></div>
-    <div class="land-socials">
-      <!-- Instagram -->
-      <a class="land-social-btn" href="https://instagram.com/cronchandco" target="_blank" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-      </a>
-      <!-- WhatsApp -->
-      <a class="land-social-btn" href="https://wa.me/919175975530" aria-label="WhatsApp">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      </a>
+      </button>
     </div>
-    <div class="land-pages">
-      <a class="land-page-btn" href="/recipes">
-        <svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-6 14H8v-2h4v2zm4-4H8v-2h8v2zm0-4H8V6h8v2z"/></svg>
-        recipes
+  </div>
+  <!-- white bottom: combos + links -->
+  <div class="land-bottom">
+    <div class="land-combo" id="land-combo-card">
+      <div class="land-combo-split">
+        <div class="land-combo-left">
+          <div class="land-combo-main">naadan chilli crisp</div>
+        </div>
+        <div class="land-combo-plus">+</div>
+        <div class="land-combo-right">
+          <div class="land-combo-val" id="land-combo-val">dosa</div>
+        </div>
+      </div>
+      <div class="land-combo-hint">tap for more</div>
+      <a class="land-combo-link" href="/recipes">look at more recipes →</a>
+    </div>
+    <div class="land-action-btns">
+      <a class="land-action-btn" href="/reviews">leave a review</a>
+    </div>
+    <div class="land-socials">
+      <a class="land-social-btn" href="https://instagram.com/cronchandco" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
       </a>
-      <a class="land-page-btn" href="/reviews">
-        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-        reviews
+      <a class="land-social-btn" href="https://wa.me/919175975530" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       </a>
     </div>
   </div>
@@ -362,6 +380,36 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   window.scrollTo(0, 0);
+}
+
+// ── LANDING COMBO ──
+const LANDING_COMBOS = ['dosa','idly','kanji','kappa','fried rice','prawns','ice cream','potato chips','tapioca chips','banana chips','boiled egg','avocado toast','sunny side up','omelette','toast','chapathi'];
+let landIdx = 0;
+let landTimer;
+
+function landNext(){
+  const el = document.getElementById('land-combo-val');
+  if(!el) return;
+  el.classList.add('out');
+  setTimeout(() => {
+    landIdx = (landIdx + 1) % LANDING_COMBOS.length;
+    el.textContent = LANDING_COMBOS[landIdx];
+    el.classList.remove('out');
+  }, 300);
+}
+
+function startLandingCombo(){
+  clearInterval(landTimer);
+  landTimer = setInterval(landNext, 4000);
+  const card = document.getElementById('land-combo-card');
+  if(card){
+    card.addEventListener('click', function(e){
+      if(e.target.tagName === 'A') return;
+      landNext();
+      clearInterval(landTimer);
+      landTimer = setInterval(landNext, 4000);
+    });
+  }
 }
 
 // ── LANDING ──
@@ -650,6 +698,7 @@ function placeOrder(){
 document.addEventListener('DOMContentLoaded', function(){
 
   // Landing buttons
+  startLandingCombo();
   document.getElementById('btn-kochi').addEventListener('click',   () => startMode('kochi'));
   document.getElementById('btn-courier').addEventListener('click', () => startMode('courier'));
 
