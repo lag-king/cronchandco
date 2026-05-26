@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Cronch & Co. — Order</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#C8493A;--red-dark:#a33829;--red-light:#fdecea;
+  --cream:#FAF7F2;--text:#1a1108;--muted:#7a6a5a;--border:#e2d8cf;
+}
+html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:16px}
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+
+/* ── LANDING ── */
+#screen-landing{background:var(--red);align-items:center;justify-content:center;padding:44px 24px;text-align:center;position:relative;overflow:hidden}
+.bg-c{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,0.1);pointer-events:none}
+.bg-c.a{width:440px;height:440px;top:-200px;right:-160px}
+.bg-c.b{width:300px;height:300px;bottom:-100px;left:-100px}
+.land-logo{font-family:'Playfair Display',serif;color:#fff;font-size:36px;font-weight:900;line-height:1.0;margin-bottom:5px;position:relative;z-index:1}
+.land-tag{color:rgba(255,255,255,0.58);font-size:11px;font-weight:300;letter-spacing:2px;text-transform:uppercase;margin-bottom:52px;position:relative;z-index:1}
+.land-q{color:#fff;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.3;margin-bottom:8px;position:relative;z-index:1}
+.land-sub{color:rgba(255,255,255,0.58);font-size:13px;margin-bottom:36px;position:relative;z-index:1;font-weight:300}
+.land-btns{display:flex;flex-direction:column;gap:14px;width:100%;max-width:380px;position:relative;z-index:1}
+.land-btn{padding:20px;border-radius:16px;cursor:pointer;transition:background 0.15s;text-align:left;display:block;width:100%;border:none;-webkit-appearance:none}
+.land-btn-kochi{background:#fff;color:var(--red)}
+.land-btn-india{background:rgba(255,255,255,0.13);color:#fff;border:1.5px solid rgba(255,255,255,0.3)!important}
+.land-btn-inner{display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.lbt-text{text-align:left}
+.lbt-title{font-size:16px;font-weight:500;display:block;font-family:'DM Sans',sans-serif}
+.lbt-hint{font-size:11px;opacity:0.58;margin-top:3px;display:block;font-weight:300;font-family:'DM Sans',sans-serif}
+.land-arrow{font-size:22px;flex-shrink:0;margin-left:12px}
+
+/* ── LANDING FOOTER ── */
+.land-footer{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:36px;position:relative;z-index:1;width:100%;max-width:380px}
+.land-divider{width:100%;height:1px;background:rgba(255,255,255,0.15)}
+.land-socials{display:flex;gap:20px;align-items:center}
+.land-social-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.13);border:1.5px solid rgba(255,255,255,0.25);text-decoration:none;transition:background 0.15s}
+.land-social-btn:hover{background:rgba(255,255,255,0.22)}
+.land-social-btn svg{width:20px;height:20px;fill:#fff}
+.land-pages{display:flex;gap:10px;width:100%}
+.land-page-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;color:#fff;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;letter-spacing:0.2px}
+.land-page-btn svg{width:15px;height:15px;fill:rgba(255,255,255,0.7);flex-shrink:0}
+
+/* ── HEADER ── */
+.app-header{background:var(--red);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(200,73,58,0.28)}
+.hdr-home{background:rgba(255,255,255,0.18);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-appearance:none}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.hdr-logo{font-family:'Playfair Display',serif;color:#fff;font-size:17px;font-weight:900;line-height:1.1;text-align:right}
+.hdr-logo span{display:block;font-size:13px}
+.hdr-badge{background:rgba(255,255,255,0.2);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500;flex-shrink:0}
+
+/* ── MENU ── */
+#screen-menu{background:var(--cream)}
+.menu-scroll{flex:1;padding-bottom:110px}
+.prod-section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--muted);padding:20px 18px 8px}
+.prod-card{background:#fff;margin:0 14px 10px;border-radius:16px;border:1.5px solid var(--border);overflow:hidden;display:flex;transition:border-color 0.15s}
+.prod-card.has-items{border-color:var(--red)}
+.prod-card-img{width:100px;height:100px;flex-shrink:0;object-fit:cover;object-position:center}
+.prod-card-noimg{width:100px;height:100px;flex-shrink:0;background:#f5ede8;display:flex;align-items:center;justify-content:center;font-size:36px}
+.prod-card-body{flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.prod-card-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.3}
+.prod-card-note{font-size:11px;color:var(--muted);margin-top:3px;font-weight:300}
+.prod-card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.prod-card-price{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text)}
+.iqc{display:flex;align-items:center;gap:9px}
+.iq-btn{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;-webkit-appearance:none}
+.iq-btn.minus{background:#fff;color:var(--red);border:2px solid var(--red)}
+.iq-btn.dim{opacity:0.28;pointer-events:none}
+.iq-n{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;min-width:20px;text-align:center}
+
+/* ── DELIVERY OPTIONS ── */
+.dlv-section{padding:8px 14px 0}
+.dlv-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--muted);padding:12px 4px 10px}
+.dlv-opts{display:flex;gap:10px}
+.dlv-opt{flex:1;background:#fff;border:2px solid var(--border);border-radius:14px;padding:14px 12px;cursor:pointer;text-align:center;-webkit-appearance:none}
+.dlv-opt.selected{border-color:var(--red);background:var(--red-light)}
+.dlv-opt-inner{pointer-events:none}
+.dlv-opt-icon{font-size:24px;margin-bottom:6px}
+.dlv-opt-title{font-size:13px;font-weight:500;color:var(--text)}
+.dlv-opt-hint{font-size:11px;color:var(--muted);margin-top:3px;font-weight:300;line-height:1.4}
+.maps-pill{display:inline-flex;align-items:center;gap:5px;margin-top:8px;background:var(--red);color:#fff;font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;text-decoration:none;font-family:'DM Sans',sans-serif}
+.maps-pill svg{width:12px;height:12px;fill:#fff}
+
+/* ── SHIPPING CARD ── */
+.ship-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;margin:10px 14px;overflow:hidden;transition:border-color 0.2s}
+.ship-card.has-zone{border-color:var(--red)}
+.ship-card-head{background:#f2ece4;padding:10px 16px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:500}
+.ship-card-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.ship-select{background:var(--cream);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);outline:none;width:100%;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6a5a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.ship-select:focus{border-color:var(--red)}
+.ship-rate-pill{background:var(--red-light);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--red);line-height:1.6;display:none}
+.ship-breakdown{font-size:12px;color:var(--muted);margin-top:3px;font-weight:300}
+.ship-unknown{background:#f5f0eb;border-radius:10px;padding:11px 14px;font-size:13px;color:var(--muted);display:none}
+
+/* ── CART BAR ── */
+.cart-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;padding:10px 16px 22px;background:linear-gradient(to top,var(--cream) 70%,transparent)}
+.cart-btn{width:100%;max-width:480px;margin:0 auto;display:flex;background:var(--red);color:#fff;border:none;border-radius:14px;padding:15px 20px;cursor:pointer;align-items:center;justify-content:space-between;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px rgba(200,73,58,0.4);-webkit-appearance:none}
+.cart-btn-left{display:flex;align-items:center;gap:10px;pointer-events:none}
+.cart-badge{background:rgba(255,255,255,0.25);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.cart-btn-label{font-size:15px;font-weight:500}
+.cart-btn-total{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;pointer-events:none}
+.warn{background:#fff3cd;color:#7a5a00;border-radius:10px;padding:10px 14px;font-size:13px;text-align:center;margin-bottom:8px;display:none}
+
+/* ── CHECKOUT ── */
+#screen-checkout{background:var(--cream)}
+.co-scroll{flex:1;padding-bottom:32px}
+.co-body{padding:16px;display:flex;flex-direction:column;gap:14px}
+.co-card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.co-card-head{background:var(--red);padding:11px 16px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.85);font-weight:500}
+.co-rows{padding:4px 16px}
+.co-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:14px;border-bottom:1px solid var(--border)}
+.co-row:last-child{border-bottom:none}
+.co-row .lbl{color:var(--muted);font-weight:300}
+.co-row.total{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;padding-top:12px}
+.co-row.total .lbl{color:var(--text);font-weight:500}
+.ship-note-txt{font-size:11px;color:var(--muted);padding:0 16px 12px;line-height:1.5;font-weight:300}
+.form-block{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.form-block-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:500;margin-bottom:2px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.field textarea,.field select{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color 0.15s;-webkit-appearance:none;width:100%}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--red)}
+.field textarea{height:82px;resize:none;line-height:1.5}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6a5a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.place-btn{width:100%;padding:17px;background:var(--red);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(200,73,58,0.35);-webkit-appearance:none}
+.place-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.75;font-weight:300;margin-top:10px}
+
+/* ── SUCCESS ── */
+#screen-success{background:var(--red);align-items:center;justify-content:center;padding:52px 28px;text-align:center}
+.suc-check{width:76px;height:76px;background:rgba(255,255,255,0.18);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:34px}
+.suc-title{font-family:'Playfair Display',serif;color:#fff;font-size:30px;font-weight:900;margin-bottom:10px}
+.suc-sub{color:rgba(255,255,255,0.7);font-size:14px;line-height:1.78;font-weight:300;margin-bottom:26px;max-width:300px}
+.suc-detail{background:rgba(255,255,255,0.12);border-radius:14px;padding:16px 20px;color:#fff;font-size:13px;line-height:2.1;text-align:left;width:100%;max-width:360px;margin-bottom:28px}
+.suc-detail strong{font-size:10px;text-transform:uppercase;letter-spacing:1px;opacity:0.52;display:block;margin-top:10px}
+.suc-detail strong:first-child{margin-top:0}
+.suc-again{background:#fff;color:var(--red);border:none;padding:15px 38px;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: LANDING -->
+<div id="screen-landing" class="screen active">
+  <div class="bg-c a"></div><div class="bg-c b"></div>
+  <div class="land-logo">cronch and co.</div>
+  <div class="land-tag">small batch · made with love</div>
+  <div class="land-q">how would you like to order?</div>
+  <div class="land-sub">we'll show what's available for you</div>
+  <div class="land-btns">
+    <button class="land-btn land-btn-kochi" id="btn-kochi">
+      <div class="land-btn-inner">
+        <div class="lbt-text">
+          <span class="lbt-title">📍 Pickup / Porter — Kochi</span>
+          <span class="lbt-hint">All sizes · Porter delivery or self pickup</span>
+        </div>
+        <span class="land-arrow">→</span>
+      </div>
+    </button>
+    <button class="land-btn land-btn-india" id="btn-courier">
+      <div class="land-btn-inner">
+        <div class="lbt-text">
+          <span class="lbt-title">📦 Courier — India wide</span>
+          <span class="lbt-hint">260g & 330g plastic jars · shipped to your door</span>
+        </div>
+        <span class="land-arrow">→</span>
+      </div>
+    </button>
+  </div>
+  <div class="land-footer">
+    <div class="land-divider"></div>
+    <div class="land-socials">
+      <!-- Instagram -->
+      <a class="land-social-btn" href="https://instagram.com/cronchandco" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </a>
+      <!-- WhatsApp -->
+      <a class="land-social-btn" href="https://wa.me/919175975530" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+    </div>
+    <div class="land-pages">
+      <a class="land-page-btn" href="/recipes">
+        <svg viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-6 14H8v-2h4v2zm4-4H8v-2h8v2zm0-4H8V6h8v2z"/></svg>
+        recipes
+      </a>
+      <a class="land-page-btn" href="/reviews">
+        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        reviews
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2: MENU -->
+<div id="screen-menu" class="screen">
+  <div class="app-header">
+    <button class="hdr-home" id="btn-home">←</button>
+    <div class="hdr-right">
+      <div class="hdr-badge" id="hdr-badge"></div>
+      <div class="hdr-logo">cronch<span>and co.</span></div>
+    </div>
+  </div>
+  <div class="menu-scroll" id="menu-scroll"></div>
+  <div class="cart-bar">
+    <div class="warn" id="warn-items">👆 add at least one item to continue</div>
+    <div class="warn" id="warn-dlv">please choose Porter or Pickup to continue</div>
+    <button class="cart-btn" id="btn-checkout">
+      <div class="cart-btn-left">
+        <div class="cart-badge" id="cart-badge">0</div>
+        <span class="cart-btn-label">review order</span>
+      </div>
+      <span class="cart-btn-total" id="cart-total">₹0</span>
+    </button>
+  </div>
+</div>
+
+<!-- SCREEN 3: CHECKOUT -->
+<div id="screen-checkout" class="screen">
+  <div class="app-header">
+    <button class="hdr-home" id="btn-back">←</button>
+    <div class="hdr-right">
+      <div class="hdr-logo">cronch<span>and co.</span></div>
+    </div>
+  </div>
+  <div class="co-scroll">
+    <div class="co-body">
+      <div class="co-card">
+        <div class="co-card-head">order summary</div>
+        <div class="co-rows" id="co-summary"></div>
+      </div>
+      <div class="co-card" id="co-ship-card" style="display:none">
+        <div class="co-card-head">shipping estimate</div>
+        <div class="co-rows" id="co-ship-rows"></div>
+        <div class="ship-note-txt" id="co-ship-note"></div>
+      </div>
+      <div class="co-card">
+        <div class="form-block">
+          <div class="form-block-label">your details</div>
+          <div class="field"><label>full name</label><input type="text" id="f-name" placeholder="your name" autocomplete="name"></div>
+          <div class="field"><label>whatsapp number</label><input type="tel" id="f-phone" placeholder="+91 98765 43210" autocomplete="tel"></div>
+          <div class="field"><label>email (optional)</label><input type="email" id="f-email" placeholder="you@example.com" autocomplete="email"></div>
+        </div>
+      </div>
+      <div class="co-card" id="addr-card">
+        <div class="form-block">
+          <div class="form-block-label">delivery address</div>
+          <div class="field" id="addr-field"><label>full address</label><textarea id="f-address" placeholder="house / flat, street, area..."></textarea></div>
+          <div class="field">
+            <label>state</label>
+            <select id="f-state">
+              <option value="">— select your state —</option>
+              <optgroup label="🟢 Kerala — ₹70/kg">
+                <option value="Kerala">Kerala</option>
+              </optgroup>
+              <optgroup label="🟡 South India — ₹90/kg">
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Puducherry">Puducherry</option>
+                <option value="Andaman &amp; Nicobar">Andaman &amp; Nicobar</option>
+                <option value="Lakshadweep">Lakshadweep</option>
+              </optgroup>
+              <optgroup label="🟠 Central / West India — ₹120/kg">
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Goa">Goa</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Dadra &amp; Nagar Haveli">Dadra &amp; Nagar Haveli</option>
+                <option value="Daman &amp; Diu">Daman &amp; Diu</option>
+              </optgroup>
+              <optgroup label="🔴 North &amp; East India — ₹160/kg">
+                <option value="Delhi">Delhi</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="Jammu &amp; Kashmir">Jammu &amp; Kashmir</option>
+                <option value="Ladakh">Ladakh</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Assam">Assam</option>
+                <option value="Meghalaya">Meghalaya</option>
+                <option value="Manipur">Manipur</option>
+                <option value="Mizoram">Mizoram</option>
+                <option value="Nagaland">Nagaland</option>
+                <option value="Tripura">Tripura</option>
+                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Sikkim">Sikkim</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field"><label>pincode</label><input type="text" id="f-pin" placeholder="682030" inputmode="numeric"></div>
+        </div>
+      </div>
+      <button class="place-btn" id="btn-place">confirm on whatsapp &nbsp;💬</button>
+      <div class="place-note">you'll be taken to whatsapp to send your order.<br>we'll confirm and arrange payment from there.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4: SUCCESS -->
+<div id="screen-success" class="screen">
+  <div class="suc-check">✓</div>
+  <div class="suc-title">order sent!</div>
+  <div class="suc-sub">your order has been sent via whatsapp. we'll confirm and share payment details shortly.</div>
+  <div class="suc-detail" id="suc-detail"></div>
+  <button class="suc-again" id="btn-again">place another order</button>
+</div>
+
+<script>
+// ── CONFIG ──
+const WA    = '919175975530';
+const MAPS  = 'https://maps.app.goo.gl/MV8Ai8G1FdAr3k1s9';
+
+const KOCHI_PRODS = [
+  {id:'k160', name:'Naadan Chilli Crisp — 160g', note:'Glass jar · Kochi only',           price:450, wKg:0},
+  {id:'k280', name:'Naadan Chilli Crisp — 280g', note:'Glass jar · Kochi only',           price:650, wKg:0},
+  {id:'k330', name:'Naadan Chilli Crisp — 330g', note:'Glass jar · Kochi only',           price:800, wKg:0},
+];
+const COURIER_PRODS = [
+  {id:'c260', name:'Naadan Chilli Crisp — 260g', note:'Plastic jar · India-wide shipping', price:600, wKg:0.35},
+  {id:'c330', name:'Naadan Chilli Crisp — 330g', note:'Plastic jar · India-wide shipping', price:800, wKg:0.40},
+];
+const ZONES = {
+  Kerala:          {label:'Kerala',             rate:70},
+  'Tamil Nadu':    {label:'South India',        rate:90},
+  Karnataka:       {label:'South India',        rate:90},
+  'Andhra Pradesh':{label:'South India',        rate:90},
+  Telangana:       {label:'South India',        rate:90},
+  Puducherry:      {label:'South India',        rate:90},
+  'Andaman & Nicobar':{label:'South India',     rate:90},
+  Lakshadweep:     {label:'South India',        rate:90},
+  Maharashtra:     {label:'Central/West India', rate:120},
+  Goa:             {label:'Central/West India', rate:120},
+  Gujarat:         {label:'Central/West India', rate:120},
+  'Madhya Pradesh':{label:'Central/West India', rate:120},
+  Rajasthan:       {label:'Central/West India', rate:120},
+  Chhattisgarh:    {label:'Central/West India', rate:120},
+  'Dadra & Nagar Haveli':{label:'Central/West India', rate:120},
+  'Daman & Diu':   {label:'Central/West India', rate:120},
+};
+function getZone(state){ return ZONES[state] || (state ? {label:'North/East India', rate:160} : null); }
+
+// ── STATE ──
+let mode           = 'kochi';
+let qtys           = {};
+let deliveryMethod = null;
+let menuState      = '';
+
+// ── SCREEN ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── LANDING ──
+function goLanding(){
+  qtys = {}; deliveryMethod = null; menuState = '';
+  showScreen('landing');
+}
+
+// ── MENU ──
+function startMode(m){
+  mode = m; qtys = {}; deliveryMethod = null;
+  document.getElementById('hdr-badge').textContent = m === 'kochi' ? '📍 Kochi' : '📦 Courier';
+  renderMenu();
+  showScreen('menu');
+}
+
+function renderMenu(){
+  const prods = mode === 'kochi' ? KOCHI_PRODS : COURIER_PRODS;
+  let html = `<div class="prod-section-label">Naadan Chilli Crisp</div>`;
+
+  prods.forEach(p => {
+    const q = qtys[p.id] || 0;
+    html += `
+    <div class="prod-card${q > 0 ? ' has-items' : ''}">
+      <img class="prod-card-img" src="naadan_chilli_crisp.png" alt="${p.name}" onerror="this.outerHTML='<div class=\\'prod-card-noimg\\'>🌶️</div>'">
+      <div class="prod-card-body">
+        <div>
+          <div class="prod-card-name">${p.name}</div>
+          <div class="prod-card-note">${p.note}</div>
+        </div>
+        <div class="prod-card-bottom">
+          <div class="prod-card-price">₹${p.price}</div>
+          <div class="iqc">
+            <button class="iq-btn minus${q === 0 ? ' dim' : ''}" data-id="${p.id}" data-d="-1">−</button>
+            <span class="iq-n">${q}</span>
+            <button class="iq-btn" data-id="${p.id}" data-d="1">+</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  if(mode === 'kochi'){
+    html += `
+    <div class="dlv-section">
+      <div class="dlv-label">how do you want it?</div>
+      <div class="dlv-opts">
+        <button class="dlv-opt${deliveryMethod === 'porter' ? ' selected' : ''}" data-dlv="porter">
+          <div class="dlv-opt-inner">
+            <div class="dlv-opt-icon">🛵</div>
+            <div class="dlv-opt-title">Porter delivery</div>
+            <div class="dlv-opt-hint">We arrange a Porter drop to your door in Kochi</div>
+          </div>
+        </button>
+        <button class="dlv-opt${deliveryMethod === 'pickup' ? ' selected' : ''}" data-dlv="pickup">
+          <div class="dlv-opt-inner">
+            <div class="dlv-opt-icon">📦</div>
+            <div class="dlv-opt-title">Self pickup</div>
+            <div class="dlv-opt-hint">Kakkanad, Kochi</div>
+            <a class="maps-pill" href="${MAPS}" target="_blank">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              directions
+            </a>
+          </div>
+        </button>
+      </div>
+    </div>`;
+  }
+
+  if(mode === 'courier'){
+    const z     = menuState ? getZone(menuState) : null;
+    const billed = getBilledKg();
+    const ship   = z ? z.rate * billed : null;
+    const sub    = getSubtotal();
+    html += `
+    <div class="ship-card${z ? ' has-zone' : ''}">
+      <div class="ship-card-head">your state &amp; shipping estimate</div>
+      <div class="ship-card-body">
+        <select class="ship-select" id="menu-state">
+          <option value="">— select your state —</option>
+          <optgroup label="🟢 Kerala — ₹70/kg"><option value="Kerala"${menuState==='Kerala'?' selected':''}>Kerala</option></optgroup>
+          <optgroup label="🟡 South India — ₹90/kg">
+            <option value="Tamil Nadu"${menuState==='Tamil Nadu'?' selected':''}>Tamil Nadu</option>
+            <option value="Karnataka"${menuState==='Karnataka'?' selected':''}>Karnataka</option>
+            <option value="Andhra Pradesh"${menuState==='Andhra Pradesh'?' selected':''}>Andhra Pradesh</option>
+            <option value="Telangana"${menuState==='Telangana'?' selected':''}>Telangana</option>
+            <option value="Puducherry"${menuState==='Puducherry'?' selected':''}>Puducherry</option>
+            <option value="Andaman &amp; Nicobar"${menuState==='Andaman & Nicobar'?' selected':''}>Andaman &amp; Nicobar</option>
+            <option value="Lakshadweep"${menuState==='Lakshadweep'?' selected':''}>Lakshadweep</option>
+          </optgroup>
+          <optgroup label="🟠 Central / West India — ₹120/kg">
+            <option value="Maharashtra"${menuState==='Maharashtra'?' selected':''}>Maharashtra</option>
+            <option value="Goa"${menuState==='Goa'?' selected':''}>Goa</option>
+            <option value="Gujarat"${menuState==='Gujarat'?' selected':''}>Gujarat</option>
+            <option value="Madhya Pradesh"${menuState==='Madhya Pradesh'?' selected':''}>Madhya Pradesh</option>
+            <option value="Rajasthan"${menuState==='Rajasthan'?' selected':''}>Rajasthan</option>
+            <option value="Chhattisgarh"${menuState==='Chhattisgarh'?' selected':''}>Chhattisgarh</option>
+            <option value="Dadra &amp; Nagar Haveli"${menuState==='Dadra & Nagar Haveli'?' selected':''}>Dadra &amp; Nagar Haveli</option>
+            <option value="Daman &amp; Diu"${menuState==='Daman & Diu'?' selected':''}>Daman &amp; Diu</option>
+          </optgroup>
+          <optgroup label="🔴 North &amp; East India — ₹160/kg">
+            <option value="Delhi"${menuState==='Delhi'?' selected':''}>Delhi</option>
+            <option value="Uttar Pradesh"${menuState==='Uttar Pradesh'?' selected':''}>Uttar Pradesh</option>
+            <option value="Punjab"${menuState==='Punjab'?' selected':''}>Punjab</option>
+            <option value="Haryana"${menuState==='Haryana'?' selected':''}>Haryana</option>
+            <option value="Himachal Pradesh"${menuState==='Himachal Pradesh'?' selected':''}>Himachal Pradesh</option>
+            <option value="Uttarakhand"${menuState==='Uttarakhand'?' selected':''}>Uttarakhand</option>
+            <option value="Jammu &amp; Kashmir"${menuState==='Jammu & Kashmir'?' selected':''}>Jammu &amp; Kashmir</option>
+            <option value="Ladakh"${menuState==='Ladakh'?' selected':''}>Ladakh</option>
+            <option value="Chandigarh"${menuState==='Chandigarh'?' selected':''}>Chandigarh</option>
+            <option value="Bihar"${menuState==='Bihar'?' selected':''}>Bihar</option>
+            <option value="Jharkhand"${menuState==='Jharkhand'?' selected':''}>Jharkhand</option>
+            <option value="West Bengal"${menuState==='West Bengal'?' selected':''}>West Bengal</option>
+            <option value="Odisha"${menuState==='Odisha'?' selected':''}>Odisha</option>
+            <option value="Assam"${menuState==='Assam'?' selected':''}>Assam</option>
+            <option value="Meghalaya"${menuState==='Meghalaya'?' selected':''}>Meghalaya</option>
+            <option value="Manipur"${menuState==='Manipur'?' selected':''}>Manipur</option>
+            <option value="Mizoram"${menuState==='Mizoram'?' selected':''}>Mizoram</option>
+            <option value="Nagaland"${menuState==='Nagaland'?' selected':''}>Nagaland</option>
+            <option value="Tripura"${menuState==='Tripura'?' selected':''}>Tripura</option>
+            <option value="Arunachal Pradesh"${menuState==='Arunachal Pradesh'?' selected':''}>Arunachal Pradesh</option>
+            <option value="Sikkim"${menuState==='Sikkim'?' selected':''}>Sikkim</option>
+          </optgroup>
+        </select>
+        ${z && billed > 0 ? `<div class="ship-rate-pill" style="display:block">
+          📍 <strong>${z.label}</strong> — est. shipping ₹${ship}
+          <div class="ship-breakdown">${billed}kg billed · ₹${z.rate}/kg · products ₹${sub} · <strong>est. total ₹${sub + ship}</strong></div>
+        </div>` : z ? `<div class="ship-rate-pill" style="display:block">📍 <strong>${z.label}</strong> — ₹${z.rate}/kg · add items to see total</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  html += '<div style="height:16px"></div>';
+  document.getElementById('menu-scroll').innerHTML = html;
+
+  // attach state select listener
+  const sel = document.getElementById('menu-state');
+  if(sel) sel.addEventListener('change', e => { menuState = e.target.value; renderMenu(); });
+
+  updateCartBar();
+}
+
+function getSubtotal(){
+  const prods = mode === 'kochi' ? KOCHI_PRODS : COURIER_PRODS;
+  return prods.reduce((s, p) => s + (p.price * (qtys[p.id] || 0)), 0);
+}
+function getItemCount(){
+  return Object.values(qtys).reduce((a, b) => a + b, 0);
+}
+function getBilledKg(){
+  const w = COURIER_PRODS.reduce((s, p) => s + ((qtys[p.id] || 0) * p.wKg), 0);
+  return w === 0 ? 0 : Math.max(1, Math.ceil(w));
+}
+function updateCartBar(){
+  document.getElementById('cart-badge').textContent = getItemCount();
+  document.getElementById('cart-total').textContent  = '₹' + getSubtotal();
+}
+
+// ── CHECKOUT ──
+function goToCheckout(){
+  if(getItemCount() === 0){
+    document.getElementById('warn-items').style.display = 'block'; return;
+  }
+  if(mode === 'kochi' && !deliveryMethod){
+    document.getElementById('warn-dlv').style.display = 'block';
+    document.getElementById('menu-scroll').scrollTop = 99999; return;
+  }
+  buildCheckout();
+  showScreen('checkout');
+}
+
+function buildCheckout(){
+  const prods = mode === 'kochi' ? KOCHI_PRODS : COURIER_PRODS;
+  const items = prods.filter(p => (qtys[p.id] || 0) > 0);
+  const sub   = getSubtotal();
+  let html    = '';
+  items.forEach(p => {
+    html += `<div class="co-row"><span class="lbl">${p.name}</span><span>× ${qtys[p.id]} = ₹${p.price * qtys[p.id]}</span></div>`;
+  });
+  if(mode === 'kochi'){
+    html += `<div class="co-row"><span class="lbl">delivery</span><span>${deliveryMethod === 'porter' ? '🛵 Porter' : '📦 Self pickup'}</span></div>`;
+    html += `<div class="co-row total"><span class="lbl">total</span><span>₹${sub}</span></div>`;
+    document.getElementById('co-ship-card').style.display = 'none';
+  } else {
+    html += `<div class="co-row total"><span class="lbl">subtotal</span><span>₹${sub}</span></div>`;
+    const z      = menuState ? getZone(menuState) : null;
+    const billed = getBilledKg();
+    const ship   = z ? z.rate * billed : null;
+    const sc     = document.getElementById('co-ship-card');
+    if(ship !== null){
+      sc.style.display = 'block';
+      document.getElementById('co-ship-rows').innerHTML =
+        `<div class="co-row"><span class="lbl">packed weight</span><span>${billed}kg billed</span></div>
+         <div class="co-row"><span class="lbl">shipping — ${z.label} (₹${z.rate}/kg)</span><span>₹${ship}</span></div>
+         <div class="co-row total"><span class="lbl">est. total</span><span>₹${sub + ship}</span></div>`;
+      document.getElementById('co-ship-note').textContent = 'Estimate based on billed weight. Final amount confirmed on WhatsApp.';
+    } else {
+      sc.style.display = 'none';
+    }
+  }
+  document.getElementById('co-summary').innerHTML = html;
+
+  // address card — hide for kochi (porter gets address inline, pickup needs nothing)
+  const isKochi  = mode === 'kochi';
+  document.getElementById('addr-card').style.display = isKochi ? 'none' : 'block';
+
+  // for porter, inject a simple address block after the details card
+  const existingPorterBlock = document.getElementById('porter-addr-block');
+  if(existingPorterBlock) existingPorterBlock.remove();
+  if(deliveryMethod === 'porter'){
+    const block = document.createElement('div');
+    block.id = 'porter-addr-block';
+    block.className = 'co-card';
+    block.innerHTML = `<div class="form-block">
+      <div class="form-block-label">delivery address</div>
+      <div class="field"><label>full address</label><textarea id="f-porter-address" placeholder="house / flat, street, area..."></textarea></div>
+      <div class="field"><label>pincode</label><input type="text" id="f-porter-pin" placeholder="682030" inputmode="numeric"></div>
+    </div>`;
+    document.getElementById('addr-card').insertAdjacentElement('afterend', block);
+  }
+
+  // pre-fill state
+  const fstate = document.getElementById('f-state');
+  if(fstate){
+    fstate.value = mode === 'kochi' ? 'Kerala' : (menuState || '');
+  }
+}
+
+// ── PLACE ORDER ──
+function placeOrder(){
+  const name  = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const isPickup = mode === 'kochi' && deliveryMethod === 'pickup';
+  const isPorter = mode === 'kochi' && deliveryMethod === 'porter';
+  const addrEl = isPorter ? document.getElementById('f-porter-address') : document.getElementById('f-address');
+  const pinEl  = isPorter ? document.getElementById('f-porter-pin')     : document.getElementById('f-pin');
+  const addr   = isPickup ? '' : (addrEl ? addrEl.value.trim() : '');
+  const stateEl = document.getElementById('f-state');
+  const state  = isPickup ? 'Kerala' : isPorter ? 'Kerala' : (stateEl ? stateEl.value.trim() : '');
+  const pin    = isPickup ? '' : (pinEl ? pinEl.value.trim() : '');
+
+  if(!name || !phone){ alert('please fill in your name and whatsapp number'); return; }
+  if(isPorter && (!addr || !pin)){ alert('please fill in your delivery address and pincode'); return; }
+  if(!isPickup && !isPorter && (!addr || !state || !pin)){ alert('please fill in your address, state and pincode'); return; }
+
+  const prods = mode === 'kochi' ? KOCHI_PRODS : COURIER_PRODS;
+  const items = prods.filter(p => (qtys[p.id] || 0) > 0);
+  const sub   = getSubtotal();
+  const z     = state ? getZone(state) : null;
+  const billed= getBilledKg();
+  const ship  = (mode === 'courier' && z) ? z.rate * billed : 0;
+  const modeLabel = mode === 'kochi'
+    ? (deliveryMethod === 'porter' ? 'Kochi — Porter delivery' : 'Kochi — Self pickup')
+    : 'India-wide Courier';
+
+  const itemsText = items.map(p => {
+    const size = p.name.replace('Naadan Chilli Crisp — ', '');
+    return `${size} x ${qtys[p.id]} = Rs.${p.price * qtys[p.id]}`;
+  }).join('\n');
+  const addrText = isPickup
+    ? 'Self pickup — Kakkanad, Kochi'
+    : isPorter
+      ? `${addr}, Kochi ${pin}`
+      : `${addr}, ${state} ${pin}`;
+  let msgBody = `*Naadan Chilli Crisp*\n${itemsText}`;
+  if(ship) msgBody += `\nShipping: Rs.${ship} (${z.label}, ${billed}kg @ Rs.${z.rate}/kg)`;
+  msgBody += `\n*Total: Rs.${sub + ship}*`;
+  if(ship) msgBody += ` (estimate)`;
+  const contactBlock = isPickup
+    ? `${name}\n${phone}`
+    : `${name}\n${phone}${email ? '\n' + email : ''}\n${addrText}`;
+  const msg = `${msgBody}\n---\n${modeLabel}\n${contactBlock}`;
+
+  const order = {id:'ORD-'+Date.now(), timestamp:new Date().toISOString(), name, phone, email, mode:modeLabel, address:addrText, items:items.map(p=>({name:p.name,qty:qtys[p.id],price:p.price})), subtotal:sub, shipping:ship, total:sub+ship};
+  try{ const db=JSON.parse(localStorage.getItem('cronch_orders')||'[]'); db.push(order); localStorage.setItem('cronch_orders',JSON.stringify(db)); }catch(e){}
+
+  document.getElementById('suc-detail').innerHTML =
+    `<strong>order id</strong>${order.id}<strong>items</strong>${items.map(p=>p.name.replace('Naadan Chilli Crisp — ','')+' × '+qtys[p.id]).join(', ')}<strong>subtotal</strong>₹${sub}${ship?`<strong>est. shipping</strong>₹${ship}`:''}<strong>delivery</strong>${modeLabel}<strong>name</strong>${name}`;
+
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank');
+  showScreen('success');
+}
+
+// ── EVENT LISTENERS — all in one place, no inline handlers ──
+document.addEventListener('DOMContentLoaded', function(){
+
+  // Landing buttons
+  document.getElementById('btn-kochi').addEventListener('click',   () => startMode('kochi'));
+  document.getElementById('btn-courier').addEventListener('click', () => startMode('courier'));
+
+  // Home buttons
+  document.getElementById('btn-home').addEventListener('click', goLanding);
+  document.getElementById('btn-back').addEventListener('click', () => showScreen('menu'));
+
+  // Cart / checkout
+  document.getElementById('btn-checkout').addEventListener('click', goToCheckout);
+
+  // Place order
+  document.getElementById('btn-place').addEventListener('click', placeOrder);
+
+  // Start again
+  document.getElementById('btn-again').addEventListener('click', goLanding);
+
+  // Qty buttons — delegated on menu-scroll
+  document.getElementById('menu-scroll').addEventListener('click', function(e){
+    const btn = e.target.closest('.iq-btn');
+    if(btn && !btn.classList.contains('dim')){
+      const id = btn.dataset.id;
+      const d  = parseInt(btn.dataset.d);
+      qtys[id] = Math.max(0, (qtys[id] || 0) + d);
+      document.getElementById('warn-items').style.display = 'none';
+      renderMenu();
+    }
+  });
+
+  // Delivery option buttons — delegated on menu-scroll
+  document.getElementById('menu-scroll').addEventListener('click', function(e){
+    const opt = e.target.closest('.dlv-opt');
+    if(opt && opt.dataset.dlv){
+      // don't fire if they tapped the maps link inside
+      if(e.target.closest('a')) return;
+      deliveryMethod = opt.dataset.dlv;
+      document.getElementById('warn-dlv').style.display = 'none';
+      renderMenu();
+    }
+  });
+
+});
+</script>
+</body>
+</html>
