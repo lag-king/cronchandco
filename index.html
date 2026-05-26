@@ -671,7 +671,7 @@ function placeOrder(){
     return `${size} x ${qtys[p.id]} = Rs.${p.price * qtys[p.id]}`;
   }).join('\n');
   const addrText = isPickup
-    ? 'Self pickup — Kakkanad, Kochi'
+    ? `Self pickup — Kakkanad, Kochi\n${MAPS}`
     : isPorter
       ? `${addr}, Kochi ${pin}`
       : `${addr}, ${state} ${pin}`;
