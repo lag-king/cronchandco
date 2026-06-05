@@ -335,19 +335,25 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
   <button class="suc-again" id="btn-again">place another order</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // ── CONFIG ──
 const WA    = '919175975530';
 const MAPS  = 'https://maps.app.goo.gl/MV8Ai8G1FdAr3k1s9';
 
+// ── SUPABASE ──
+const SUPABASE_URL      = 'https://kdqmsnuxsdoqeaahgnnc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcW1zbnV4c2RvcWVhYWhnbm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mzc2NDYsImV4cCI6MjA5NjIxMzY0Nn0.V0SInQ4h6YtH40rXOUiNEJkZKPGeOnFpwXQoXtDW6Hw';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── PRODUCTS ──
 const KOCHI_PRODS = [
-  {id:'k160', name:'Naadan Chilli Crisp — 160g', note:'Glass jar · Kochi only',           price:450, wKg:0},
-  {id:'k280', name:'Naadan Chilli Crisp — 280g', note:'Glass jar · Kochi only',           price:650, wKg:0},
-  {id:'k330', name:'Naadan Chilli Crisp — 330g', note:'Glass jar · Kochi only',           price:800, wKg:0},
+  {id:'k160', name:'Naadan Chilli Crisp — 160g', note:'Glass jar · Kochi only',            price:450, wKg:0,    img:'naadan_chilli_crisp_160g.png'},
+  {id:'k280', name:'Naadan Chilli Crisp — 280g', note:'Glass jar · Kochi only',            price:650, wKg:0,    img:'naadan_chilli_crisp_280g_glass.png'},
 ];
 const COURIER_PRODS = [
-  {id:'c260', name:'Naadan Chilli Crisp — 260g', note:'Plastic jar · India-wide shipping', price:600, wKg:0.35},
-  {id:'c330', name:'Naadan Chilli Crisp — 330g', note:'Plastic jar · India-wide shipping', price:800, wKg:0.40},
+  {id:'c280', name:'Naadan Chilli Crisp — 280g', note:'Plastic jar · India-wide shipping', price:650, wKg:0.35, img:'naadan_chilli_crisp_280g_plastic.png'},
+  {id:'c330', name:'Naadan Chilli Crisp — 330g', note:'Plastic jar · India-wide shipping', price:800, wKg:0.40, img:'naadan_chilli_crisp_330g_plastic.png'},
 ];
 const ZONES = {
   Kerala:          {label:'Kerala',             rate:70},
@@ -434,7 +440,7 @@ function renderMenu(){
     const q = qtys[p.id] || 0;
     html += `
     <div class="prod-card${q > 0 ? ' has-items' : ''}">
-      <img class="prod-card-img" src="naadan_chilli_crisp.png" alt="${p.name}" onerror="this.outerHTML='<div class=\\'prod-card-noimg\\'>🌶️</div>'">
+      ${p.img ? `<img class="prod-card-img" src="${p.img}" alt="${p.name}" onerror="this.outerHTML='<div class=\'prod-card-noimg\'>🌶️</div>'">` : `<div class="prod-card-noimg">🌶️</div>`}
       <div class="prod-card-body">
         <div>
           <div class="prod-card-name">${p.name}</div>
@@ -648,8 +654,9 @@ function placeOrder(){
   const addrEl = isPorter ? document.getElementById('f-porter-address') : document.getElementById('f-address');
   const pinEl  = isPorter ? document.getElementById('f-porter-pin')     : document.getElementById('f-pin');
   const addr   = isPickup ? '' : (addrEl ? addrEl.value.trim() : '');
+  // Courier reads from checkout #f-state (pre-filled from menuState); Kochi always Kerala
   const stateEl = document.getElementById('f-state');
-  const state  = isPickup ? 'Kerala' : isPorter ? 'Kerala' : (stateEl ? stateEl.value.trim() : '');
+  const state  = (isPickup || isPorter) ? 'Kerala' : (stateEl ? stateEl.value.trim() : menuState || '');
   const pin    = isPickup ? '' : (pinEl ? pinEl.value.trim() : '');
 
   if(!name || !phone){ alert('please fill in your name and whatsapp number'); return; }
@@ -685,7 +692,24 @@ function placeOrder(){
   const msg = `${msgBody}\n---\n${modeLabel}\n${contactBlock}`;
 
   const order = {id:'ORD-'+Date.now(), timestamp:new Date().toISOString(), name, phone, email, mode:modeLabel, address:addrText, items:items.map(p=>({name:p.name,qty:qtys[p.id],price:p.price})), subtotal:sub, shipping:ship, total:sub+ship};
-  try{ const db=JSON.parse(localStorage.getItem('cronch_orders')||'[]'); db.push(order); localStorage.setItem('cronch_orders',JSON.stringify(db)); }catch(e){}
+  try{ const saved=JSON.parse(localStorage.getItem('cronch_orders')||'[]'); saved.push(order); localStorage.setItem('cronch_orders',JSON.stringify(saved)); }catch(e){}
+
+  // Supabase insert — non-blocking; localStorage is the backup
+  db.from('orders').insert({
+    id:       order.id,
+    name:     order.name,
+    phone:    order.phone,
+    email:    order.email || null,
+    mode:     order.mode,
+    address:  order.address,
+    state:    state || null,
+    items:    order.items,
+    subtotal: order.subtotal,
+    shipping: order.shipping,
+    total:    order.total
+  }).then(({ error }) => {
+    if (error) console.warn('Supabase insert failed:', error.message);
+  });
 
   document.getElementById('suc-detail').innerHTML =
     `<strong>order id</strong>${order.id}<strong>items</strong>${items.map(p=>p.name.replace('Naadan Chilli Crisp — ','')+' × '+qtys[p.id]).join(', ')}<strong>subtotal</strong>₹${sub}${ship?`<strong>est. shipping</strong>₹${ship}`:''}<strong>delivery</strong>${modeLabel}<strong>name</strong>${name}`;
