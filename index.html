@@ -44,7 +44,7 @@
   "url": "https://www.cronchandco.com/",
   "image": "https://www.cronchandco.com/og-image.png",
   "servesCuisine": "Indian",
-  "priceRange": "₹450–₹800",
+  "priceRange": "₹450–₹850",
   "telephone": "+91-9175975530",
   "address": {
     "@type": "PostalAddress",
@@ -120,6 +120,10 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 #screen-menu{background:var(--cream)}
 .menu-scroll{flex:1;padding-bottom:110px}
 .prod-section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--muted);padding:20px 18px 8px}
+.flavour-head{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--red);padding:26px 18px 11px;display:flex;align-items:center;gap:9px}
+.flavour-head:first-child{padding-top:18px}
+.flavour-head::after{content:'';flex:1;height:1px;background:var(--border);margin-left:2px}
+.flavour-ic{font-size:16px;line-height:1}
 .prod-card{background:#fff;margin:0 14px 10px;border-radius:16px;border:1.5px solid var(--border);overflow:hidden;display:flex;transition:border-color 0.15s}
 .prod-card.has-items{border-color:var(--red)}
 .prod-card-img{width:100px;height:100px;flex-shrink:0;object-fit:cover;object-position:center}
@@ -399,13 +403,32 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ── PRODUCTS ──
+// flavour: groups cards under a header · size: shown on the card · name: full label used in order/WhatsApp
+// img: per-flavour branded jar photo.
 const KOCHI_PRODS = [
-  {id:'k160', name:'Naadan Chilli Crisp — 160g', note:'Glass jar · Kochi only',            price:450, wKg:0,    img:'naadan_chilli_crisp_160g.webp'},
-  {id:'k280', name:'Naadan Chilli Crisp — 280g', note:'Glass jar · Kochi only',            price:650, wKg:0,    img:'naadan_chilli_crisp_280g_glass.webp'},
+  // Meat
+  {id:'ko160', flavour:'Meat',      size:'160g', name:'Naadan Chilli Crisp — Meat — 160g',      note:'Glass jar · Kochi only', price:450, wKg:0, img:'meat_chilli_crisp.webp',  icon:'🥩'},
+  {id:'ko280', flavour:'Meat',      size:'280g', name:'Naadan Chilli Crisp — Meat — 280g',      note:'Glass jar · Kochi only', price:650, wKg:0, img:'meat_chilli_crisp.webp',  icon:'🥩'},
+  {id:'ko330', flavour:'Meat',      size:'330g', name:'Naadan Chilli Crisp — Meat — 330g',      note:'Glass jar · Kochi only', price:800, wKg:0, img:'meat_chilli_crisp.webp',  icon:'🥩'},
+  // Spicy
+  {id:'ks160', flavour:'Spicy',     size:'160g', name:'Naadan Chilli Crisp — Spicy — 160g',     note:'Glass jar · Kochi only', price:450, wKg:0, img:'spicy_chilli_crisp.webp', icon:'🔥'},
+  {id:'ks280', flavour:'Spicy',     size:'280g', name:'Naadan Chilli Crisp — Spicy — 280g',     note:'Glass jar · Kochi only', price:650, wKg:0, img:'spicy_chilli_crisp.webp', icon:'🔥'},
+  {id:'ks330', flavour:'Spicy',     size:'330g', name:'Naadan Chilli Crisp — Spicy — 330g',     note:'Glass jar · Kochi only', price:800, wKg:0, img:'spicy_chilli_crisp.webp', icon:'🔥'},
+  // Hot Honey
+  {id:'kh160', flavour:'Hot Honey', size:'160g', name:'Naadan Chilli Crisp — Hot Honey — 160g', note:'Glass jar · Kochi only', price:500, wKg:0, img:'honey_chilli_crisp.webp', icon:'🍯'},
+  {id:'kh280', flavour:'Hot Honey', size:'280g', name:'Naadan Chilli Crisp — Hot Honey — 280g', note:'Glass jar · Kochi only', price:700, wKg:0, img:'honey_chilli_crisp.webp', icon:'🍯'},
+  {id:'kh330', flavour:'Hot Honey', size:'330g', name:'Naadan Chilli Crisp — Hot Honey — 330g', note:'Glass jar · Kochi only', price:850, wKg:0, img:'honey_chilli_crisp.webp', icon:'🍯'},
 ];
 const COURIER_PRODS = [
-  {id:'c280', name:'Naadan Chilli Crisp — 280g', note:'Plastic jar · India-wide shipping', price:650, wKg:0.35, img:'naadan_chilli_crisp_280g_plastic.webp'},
-  {id:'c330', name:'Naadan Chilli Crisp — 330g', note:'Plastic jar · India-wide shipping', price:800, wKg:0.40, img:'naadan_chilli_crisp_330g_plastic.webp'},
+  // Meat
+  {id:'co260', flavour:'Meat',      size:'260g', name:'Naadan Chilli Crisp — Meat — 260g',      note:'Plastic jar · India-wide shipping', price:600, wKg:0.35, img:'meat_chilli_crisp.webp',  icon:'🥩'},
+  {id:'co330', flavour:'Meat',      size:'330g', name:'Naadan Chilli Crisp — Meat — 330g',      note:'Plastic jar · India-wide shipping', price:800, wKg:0.40, img:'meat_chilli_crisp.webp',  icon:'🥩'},
+  // Spicy
+  {id:'cs260', flavour:'Spicy',     size:'260g', name:'Naadan Chilli Crisp — Spicy — 260g',     note:'Plastic jar · India-wide shipping', price:600, wKg:0.35, img:'spicy_chilli_crisp.webp', icon:'🔥'},
+  {id:'cs330', flavour:'Spicy',     size:'330g', name:'Naadan Chilli Crisp — Spicy — 330g',     note:'Plastic jar · India-wide shipping', price:800, wKg:0.40, img:'spicy_chilli_crisp.webp', icon:'🔥'},
+  // Hot Honey
+  {id:'ch260', flavour:'Hot Honey', size:'260g', name:'Naadan Chilli Crisp — Hot Honey — 260g', note:'Plastic jar · India-wide shipping', price:650, wKg:0.35, img:'honey_chilli_crisp.webp', icon:'🍯'},
+  {id:'ch330', flavour:'Hot Honey', size:'330g', name:'Naadan Chilli Crisp — Hot Honey — 330g', note:'Plastic jar · India-wide shipping', price:850, wKg:0.40, img:'honey_chilli_crisp.webp', icon:'🍯'},
 ];
 const ZONES = {
   Kerala:          {label:'Kerala',             rate:70},
@@ -484,30 +507,41 @@ function startMode(m){
   showScreen('menu');
 }
 
+// image fallback -> swap a failed <img> for the emoji placeholder
+function imgFallback(el, icon){
+  el.outerHTML = '<div class="prod-card-noimg">' + icon + '</div>';
+}
+
 function renderMenu(){
   const prods = mode === 'kochi' ? KOCHI_PRODS : COURIER_PRODS;
-  let html = `<div class="prod-section-label">Naadan Chilli Crisp</div>`;
+  let html = '';
 
-  prods.forEach(p => {
-    const q = qtys[p.id] || 0;
-    html += `
-    <div class="prod-card${q > 0 ? ' has-items' : ''}">
-      ${p.img ? `<img class="prod-card-img" src="${p.img}" alt="${p.name}" onerror="this.outerHTML='<div class=\'prod-card-noimg\'>🌶️</div>'">` : `<div class="prod-card-noimg">🌶️</div>`}
-      <div class="prod-card-body">
-        <div>
-          <div class="prod-card-name">${p.name}</div>
-          <div class="prod-card-note">${p.note}</div>
-        </div>
-        <div class="prod-card-bottom">
-          <div class="prod-card-price">₹${p.price}</div>
-          <div class="iqc">
-            <button class="iq-btn minus${q === 0 ? ' dim' : ''}" data-id="${p.id}" data-d="-1">−</button>
-            <span class="iq-n">${q}</span>
-            <button class="iq-btn" data-id="${p.id}" data-d="1">+</button>
+  // group cards under a header per flavour, in the order flavours first appear in the array
+  const flavours = [...new Set(prods.map(p => p.flavour))];
+  flavours.forEach(fl => {
+    const groupProds = prods.filter(p => p.flavour === fl);
+    html += `<div class="flavour-head"><span class="flavour-ic">${groupProds[0].icon}</span>${fl}</div>`;
+    groupProds.forEach(p => {
+      const q = qtys[p.id] || 0;
+      html += `
+      <div class="prod-card${q > 0 ? ' has-items' : ''}">
+        ${p.img ? `<img class="prod-card-img" src="${p.img}" alt="${p.name}" onerror="imgFallback(this,'${p.icon}')">` : `<div class="prod-card-noimg">${p.icon}</div>`}
+        <div class="prod-card-body">
+          <div>
+            <div class="prod-card-name">${p.size}</div>
+            <div class="prod-card-note">${p.note}</div>
+          </div>
+          <div class="prod-card-bottom">
+            <div class="prod-card-price">₹${p.price}</div>
+            <div class="iqc">
+              <button class="iq-btn minus${q === 0 ? ' dim' : ''}" data-id="${p.id}" data-d="-1">−</button>
+              <span class="iq-n">${q}</span>
+              <button class="iq-btn" data-id="${p.id}" data-d="1">+</button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>`;
+      </div>`;
+    });
   });
 
   if(mode === 'kochi'){
