@@ -44,7 +44,7 @@
   "url": "https://www.cronchandco.com/",
   "image": "https://www.cronchandco.com/og-image.png",
   "servesCuisine": "Indian",
-  "priceRange": "₹450–₹850",
+  "priceRange": "₹450–₹950",
   "telephone": "+91-9175975530",
   "address": {
     "@type": "PostalAddress",
@@ -120,14 +120,24 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 #screen-menu{background:var(--cream)}
 .menu-scroll{flex:1;padding-bottom:110px}
 .prod-section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--muted);padding:20px 18px 8px}
-.flavour-head{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--red);padding:26px 18px 11px;display:flex;align-items:center;gap:9px}
-.flavour-head:first-child{padding-top:18px}
-.flavour-head::after{content:'';flex:1;height:1px;background:var(--border);margin-left:2px}
-.flavour-ic{font-size:16px;line-height:1}
+.flavour-head{width:calc(100% - 28px);margin:10px 14px 4px;background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:15px 16px;display:flex;align-items:center;gap:11px;cursor:pointer;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
+.flavour-head.has-items{border-color:var(--red)}
+.flavour-head.open{border-color:var(--red)}
+.flavour-ic{font-size:19px;line-height:1}
+.flavour-name{flex:1;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--red);text-align:left}
+.flavour-count{background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;min-width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.flavour-chev{font-size:17px;color:var(--muted);line-height:1;transition:transform .18s ease}
+.flavour-head.open .flavour-chev{transform:rotate(90deg);color:var(--red)}
+.flavour-body{display:none}
+.flavour-body.open{display:block}
 .prod-card{background:#fff;margin:0 14px 10px;border-radius:16px;border:1.5px solid var(--border);overflow:hidden;display:flex;transition:border-color 0.15s}
 .prod-card.has-items{border-color:var(--red)}
-.prod-card-img{width:100px;height:100px;flex-shrink:0;object-fit:cover;object-position:center}
-.prod-card-noimg{width:100px;height:100px;flex-shrink:0;background:#f5ede8;display:flex;align-items:center;justify-content:center;font-size:36px}
+.prod-card-imgwrap{width:100px;height:100px;flex-shrink:0;overflow:hidden}
+.prod-card-img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.prod-card-img.sz-s{transform:scale(0.9)}
+.prod-card-img.sz-m{transform:scale(1)}
+.prod-card-img.sz-l{transform:scale(1.16)}
+.prod-card-noimg{width:100%;height:100%;background:#f5ede8;display:flex;align-items:center;justify-content:center;font-size:36px}
 .prod-card-body{flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
 .prod-card-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.3}
 .prod-card-note{font-size:11px;color:var(--muted);margin-top:3px;font-weight:300}
@@ -232,7 +242,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
         <div class="land-btn-inner">
           <div class="lbt-text">
             <span class="lbt-title">📦 Courier — India wide</span>
-            <span class="lbt-hint">260g & 330g plastic jars · shipped to your door</span>
+            <span class="lbt-hint">280g & 330g plastic jars · shipped to your door</span>
           </div>
           <span class="land-arrow">→</span>
         </div>
@@ -400,35 +410,47 @@ const MAPS  = 'https://maps.app.goo.gl/6G4qkx4HXKgZCqQz8';
 // ── SUPABASE ──
 const SUPABASE_URL      = 'https://kdqmsnuxsdoqeaahgnnc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcW1zbnV4c2RvcWVhYWhnbm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mzc2NDYsImV4cCI6MjA5NjIxMzY0Nn0.V0SInQ4h6YtH40rXOUiNEJkZKPGeOnFpwXQoXtDW6Hw';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // ── PRODUCTS ──
 // flavour: groups cards under a header · size: shown on the card · name: full label used in order/WhatsApp
-// img: per-flavour branded jar photo.
+// Kochi lists glass (160g,280g) + plastic travel (280g,330g); Courier is plastic (280g,330g).
+// img: per-size jar photo; empty img falls back to the flavour emoji until a photo is added.
 const KOCHI_PRODS = [
-  // Meat
-  {id:'ko160', flavour:'Meat',      size:'160g', name:'Naadan Chilli Crisp — Meat — 160g',      note:'Glass jar · Kochi only', price:450, wKg:0, img:'meat_chilli_crisp.webp',  icon:'🥩'},
-  {id:'ko280', flavour:'Meat',      size:'280g', name:'Naadan Chilli Crisp — Meat — 280g',      note:'Glass jar · Kochi only', price:650, wKg:0, img:'meat_chilli_crisp.webp',  icon:'🥩'},
-  {id:'ko330', flavour:'Meat',      size:'330g', name:'Naadan Chilli Crisp — Meat — 330g',      note:'Glass jar · Kochi only', price:800, wKg:0, img:'meat_chilli_crisp.webp',  icon:'🥩'},
+  // Original
+  {id:'ko160', flavour:'Original', size:'160g', name:'Naadan Chilli Crisp — Original — 160g', note:'Glass jar', price:450, wKg:0, img:'naadan_chilli_crisp_160g.webp', icon:'🌶️'},
+  {id:'ko280g', flavour:'Original', size:'280g glass', name:'Naadan Chilli Crisp — Original — 280g glass', note:'Glass jar', price:650, wKg:0, img:'naadan_chilli_crisp_280g_glass.webp', icon:'🌶️'},
+  {id:'ko280p', flavour:'Original', size:'280g plastic', name:'Naadan Chilli Crisp — Original — 280g plastic', note:'Travel jar · porter or pickup', price:650, wKg:0, img:'naadan_chilli_crisp_280g_plastic.webp', icon:'🌶️'},
+  {id:'ko330p', flavour:'Original', size:'330g plastic', name:'Naadan Chilli Crisp — Original — 330g plastic', note:'Travel jar · porter or pickup', price:800, wKg:0, img:'naadan_chilli_crisp_330g_plastic.webp', icon:'🌶️'},
   // Spicy
-  {id:'ks160', flavour:'Spicy',     size:'160g', name:'Naadan Chilli Crisp — Spicy — 160g',     note:'Glass jar · Kochi only', price:450, wKg:0, img:'spicy_chilli_crisp.webp', icon:'🔥'},
-  {id:'ks280', flavour:'Spicy',     size:'280g', name:'Naadan Chilli Crisp — Spicy — 280g',     note:'Glass jar · Kochi only', price:650, wKg:0, img:'spicy_chilli_crisp.webp', icon:'🔥'},
-  {id:'ks330', flavour:'Spicy',     size:'330g', name:'Naadan Chilli Crisp — Spicy — 330g',     note:'Glass jar · Kochi only', price:800, wKg:0, img:'spicy_chilli_crisp.webp', icon:'🔥'},
+  {id:'ks160', flavour:'Spicy', size:'160g', name:'Naadan Chilli Crisp — Spicy — 160g', note:'Glass jar', price:450, wKg:0, img:'spicy_160g_glass.webp', icon:'🔥'},
+  {id:'ks280g', flavour:'Spicy', size:'280g glass', name:'Naadan Chilli Crisp — Spicy — 280g glass', note:'Glass jar', price:650, wKg:0, img:'spicy_280g_glass.webp', icon:'🔥'},
+  {id:'ks280p', flavour:'Spicy', size:'280g plastic', name:'Naadan Chilli Crisp — Spicy — 280g plastic', note:'Travel jar · porter or pickup', price:650, wKg:0, img:'spicy_plastic.webp', icon:'🔥'},
+  {id:'ks330p', flavour:'Spicy', size:'330g plastic', name:'Naadan Chilli Crisp — Spicy — 330g plastic', note:'Travel jar · porter or pickup', price:800, wKg:0, img:'spicy_plastic.webp', icon:'🔥'},
   // Hot Honey
-  {id:'kh160', flavour:'Hot Honey', size:'160g', name:'Naadan Chilli Crisp — Hot Honey — 160g', note:'Glass jar · Kochi only', price:500, wKg:0, img:'honey_chilli_crisp.webp', icon:'🍯'},
-  {id:'kh280', flavour:'Hot Honey', size:'280g', name:'Naadan Chilli Crisp — Hot Honey — 280g', note:'Glass jar · Kochi only', price:700, wKg:0, img:'honey_chilli_crisp.webp', icon:'🍯'},
-  {id:'kh330', flavour:'Hot Honey', size:'330g', name:'Naadan Chilli Crisp — Hot Honey — 330g', note:'Glass jar · Kochi only', price:850, wKg:0, img:'honey_chilli_crisp.webp', icon:'🍯'},
+  {id:'kh160', flavour:'Hot Honey', size:'160g', name:'Naadan Chilli Crisp — Hot Honey — 160g', note:'Glass jar', price:500, wKg:0, img:'honey_160g_glass.webp', icon:'🍯'},
+  {id:'kh280g', flavour:'Hot Honey', size:'280g glass', name:'Naadan Chilli Crisp — Hot Honey — 280g glass', note:'Glass jar', price:700, wKg:0, img:'honey_280g_glass.webp', icon:'🍯'},
+  {id:'kh280p', flavour:'Hot Honey', size:'280g plastic', name:'Naadan Chilli Crisp — Hot Honey — 280g plastic', note:'Travel jar · porter or pickup', price:700, wKg:0, img:'honey_plastic.webp', icon:'🍯'},
+  {id:'kh330p', flavour:'Hot Honey', size:'330g plastic', name:'Naadan Chilli Crisp — Hot Honey — 330g plastic', note:'Travel jar · porter or pickup', price:850, wKg:0, img:'honey_plastic.webp', icon:'🍯'},
+  // Meat
+  {id:'km160', flavour:'Meat', size:'160g', name:'Naadan Chilli Crisp — Meat — 160g', note:'Glass jar', price:600, wKg:0, img:'meat_160g_glass.webp', icon:'🥩'},
+  {id:'km280g', flavour:'Meat', size:'280g glass', name:'Naadan Chilli Crisp — Meat — 280g glass', note:'Glass jar', price:800, wKg:0, img:'meat_280g_glass.webp', icon:'🥩'},
+  {id:'km280p', flavour:'Meat', size:'280g plastic', name:'Naadan Chilli Crisp — Meat — 280g plastic', note:'Travel jar · porter or pickup', price:800, wKg:0, img:'meat_plastic.webp', icon:'🥩'},
+  {id:'km330p', flavour:'Meat', size:'330g plastic', name:'Naadan Chilli Crisp — Meat — 330g plastic', note:'Travel jar · porter or pickup', price:950, wKg:0, img:'meat_plastic.webp', icon:'🥩'},
 ];
 const COURIER_PRODS = [
-  // Meat
-  {id:'co260', flavour:'Meat',      size:'260g', name:'Naadan Chilli Crisp — Meat — 260g',      note:'Plastic jar · India-wide shipping', price:600, wKg:0.35, img:'meat_chilli_crisp.webp',  icon:'🥩'},
-  {id:'co330', flavour:'Meat',      size:'330g', name:'Naadan Chilli Crisp — Meat — 330g',      note:'Plastic jar · India-wide shipping', price:800, wKg:0.40, img:'meat_chilli_crisp.webp',  icon:'🥩'},
+  // Original
+  {id:'co280p', flavour:'Original', size:'280g', name:'Naadan Chilli Crisp — Original — 280g plastic', note:'Plastic jar · India-wide shipping', price:650, wKg:0.35, img:'naadan_chilli_crisp_280g_plastic.webp', icon:'🌶️'},
+  {id:'co330p', flavour:'Original', size:'330g', name:'Naadan Chilli Crisp — Original — 330g plastic', note:'Plastic jar · India-wide shipping', price:800, wKg:0.4, img:'naadan_chilli_crisp_330g_plastic.webp', icon:'🌶️'},
   // Spicy
-  {id:'cs260', flavour:'Spicy',     size:'260g', name:'Naadan Chilli Crisp — Spicy — 260g',     note:'Plastic jar · India-wide shipping', price:600, wKg:0.35, img:'spicy_chilli_crisp.webp', icon:'🔥'},
-  {id:'cs330', flavour:'Spicy',     size:'330g', name:'Naadan Chilli Crisp — Spicy — 330g',     note:'Plastic jar · India-wide shipping', price:800, wKg:0.40, img:'spicy_chilli_crisp.webp', icon:'🔥'},
+  {id:'cs280p', flavour:'Spicy', size:'280g', name:'Naadan Chilli Crisp — Spicy — 280g plastic', note:'Plastic jar · India-wide shipping', price:650, wKg:0.35, img:'spicy_plastic.webp', icon:'🔥'},
+  {id:'cs330p', flavour:'Spicy', size:'330g', name:'Naadan Chilli Crisp — Spicy — 330g plastic', note:'Plastic jar · India-wide shipping', price:800, wKg:0.4, img:'spicy_plastic.webp', icon:'🔥'},
   // Hot Honey
-  {id:'ch260', flavour:'Hot Honey', size:'260g', name:'Naadan Chilli Crisp — Hot Honey — 260g', note:'Plastic jar · India-wide shipping', price:650, wKg:0.35, img:'honey_chilli_crisp.webp', icon:'🍯'},
-  {id:'ch330', flavour:'Hot Honey', size:'330g', name:'Naadan Chilli Crisp — Hot Honey — 330g', note:'Plastic jar · India-wide shipping', price:850, wKg:0.40, img:'honey_chilli_crisp.webp', icon:'🍯'},
+  {id:'ch280p', flavour:'Hot Honey', size:'280g', name:'Naadan Chilli Crisp — Hot Honey — 280g plastic', note:'Plastic jar · India-wide shipping', price:700, wKg:0.35, img:'honey_plastic.webp', icon:'🍯'},
+  {id:'ch330p', flavour:'Hot Honey', size:'330g', name:'Naadan Chilli Crisp — Hot Honey — 330g plastic', note:'Plastic jar · India-wide shipping', price:850, wKg:0.4, img:'honey_plastic.webp', icon:'🍯'},
+  // Meat
+  {id:'cm280p', flavour:'Meat', size:'280g', name:'Naadan Chilli Crisp — Meat — 280g plastic', note:'Plastic jar · India-wide shipping', price:800, wKg:0.35, img:'meat_plastic.webp', icon:'🥩'},
+  {id:'cm330p', flavour:'Meat', size:'330g', name:'Naadan Chilli Crisp — Meat — 330g plastic', note:'Plastic jar · India-wide shipping', price:950, wKg:0.4, img:'meat_plastic.webp', icon:'🥩'},
 ];
 const ZONES = {
   Kerala:          {label:'Kerala',             rate:70},
@@ -455,6 +477,7 @@ let mode           = 'kochi';
 let qtys           = {};
 let deliveryMethod = null;
 let menuState      = '';
+let openFlavour    = null;
 
 // ── SCREEN ──
 function showScreen(id){
@@ -502,6 +525,7 @@ function goLanding(){
 // ── MENU ──
 function startMode(m){
   mode = m; qtys = {}; deliveryMethod = null;
+  openFlavour = (m === 'kochi' ? KOCHI_PRODS : COURIER_PRODS)[0].flavour;
   document.getElementById('hdr-badge').textContent = m === 'kochi' ? '📍 Kochi' : '📦 Courier';
   renderMenu();
   showScreen('menu');
@@ -520,28 +544,40 @@ function renderMenu(){
   const flavours = [...new Set(prods.map(p => p.flavour))];
   flavours.forEach(fl => {
     const groupProds = prods.filter(p => p.flavour === fl);
-    html += `<div class="flavour-head"><span class="flavour-ic">${groupProds[0].icon}</span>${fl}</div>`;
-    groupProds.forEach(p => {
-      const q = qtys[p.id] || 0;
-      html += `
-      <div class="prod-card${q > 0 ? ' has-items' : ''}">
-        ${p.img ? `<img class="prod-card-img" src="${p.img}" alt="${p.name}" onerror="imgFallback(this,'${p.icon}')">` : `<div class="prod-card-noimg">${p.icon}</div>`}
-        <div class="prod-card-body">
-          <div>
-            <div class="prod-card-name">${p.size}</div>
-            <div class="prod-card-note">${p.note}</div>
-          </div>
-          <div class="prod-card-bottom">
-            <div class="prod-card-price">₹${p.price}</div>
-            <div class="iqc">
-              <button class="iq-btn minus${q === 0 ? ' dim' : ''}" data-id="${p.id}" data-d="-1">−</button>
-              <span class="iq-n">${q}</span>
-              <button class="iq-btn" data-id="${p.id}" data-d="1">+</button>
+    const fq = groupProds.reduce((n,p) => n + (qtys[p.id] || 0), 0);
+    const open = openFlavour === fl;
+    html += `<button class="flavour-head${open ? ' open' : ''}${fq > 0 ? ' has-items' : ''}" data-flav="${fl}">
+      <span class="flavour-ic">${groupProds[0].icon}</span>
+      <span class="flavour-name">${fl}</span>
+      ${fq > 0 ? `<span class="flavour-count">${fq}</span>` : ''}
+      <span class="flavour-chev">›</span>
+    </button>`;
+    html += `<div class="flavour-body${open ? ' open' : ''}">`;
+    if(open){
+      groupProds.forEach(p => {
+        const q = qtys[p.id] || 0;
+        const szClass = p.size.indexOf('330')===0 ? 'sz-l' : (p.size.indexOf('160')===0 ? 'sz-s' : 'sz-m');
+        html += `
+        <div class="prod-card${q > 0 ? ' has-items' : ''}">
+          <div class="prod-card-imgwrap">${p.img ? `<img class="prod-card-img ${szClass}" src="${p.img}" alt="${p.name}" onerror="imgFallback(this,'${p.icon}')">` : `<div class="prod-card-noimg">${p.icon}</div>`}</div>
+          <div class="prod-card-body">
+            <div>
+              <div class="prod-card-name">${p.size}</div>
+              <div class="prod-card-note">${p.note}</div>
+            </div>
+            <div class="prod-card-bottom">
+              <div class="prod-card-price">₹${p.price}</div>
+              <div class="iqc">
+                <button class="iq-btn minus${q === 0 ? ' dim' : ''}" data-id="${p.id}" data-d="-1">−</button>
+                <span class="iq-n">${q}</span>
+                <button class="iq-btn" data-id="${p.id}" data-d="1">+</button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>`;
-    });
+        </div>`;
+      });
+    }
+    html += `</div>`;
   });
 
   if(mode === 'kochi'){
@@ -780,8 +816,8 @@ function placeOrder(){
   const order = {id:'ORD-'+Date.now(), timestamp:new Date().toISOString(), name, phone, email, mode:modeLabel, address:addrText, items:items.map(p=>({name:p.name,qty:qtys[p.id],price:p.price})), subtotal:sub, shipping:ship, total:sub+ship};
   try{ const saved=JSON.parse(localStorage.getItem('cronch_orders')||'[]'); saved.push(order); localStorage.setItem('cronch_orders',JSON.stringify(saved)); }catch(e){}
 
-  // Supabase insert — non-blocking; localStorage is the backup
-  db.from('orders').insert({
+  // Supabase insert — non-blocking; localStorage is the backup. Guarded so the app still works if the CDN is blocked.
+  if(db) db.from('orders').insert({
     id:       order.id,
     name:     order.name,
     phone:    order.phone,
@@ -833,6 +869,15 @@ document.addEventListener('DOMContentLoaded', function(){
       const d  = parseInt(btn.dataset.d);
       qtys[id] = Math.max(0, (qtys[id] || 0) + d);
       document.getElementById('warn-items').style.display = 'none';
+      renderMenu();
+    }
+  });
+
+  // Flavour accordion headers — delegated on menu-scroll
+  document.getElementById('menu-scroll').addEventListener('click', function(e){
+    const h = e.target.closest('.flavour-head');
+    if(h && h.dataset.flav){
+      openFlavour = (openFlavour === h.dataset.flav) ? null : h.dataset.flav;
       renderMenu();
     }
   });
