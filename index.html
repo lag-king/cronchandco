@@ -349,7 +349,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
               <optgroup label="🟢 Kerala — ₹70/kg">
                 <option value="Kerala">Kerala</option>
               </optgroup>
-              <optgroup label="🟡 South India — ₹90/kg">
+              <optgroup label="🟡 South India — ₹100/kg">
                 <option value="Tamil Nadu">Tamil Nadu</option>
                 <option value="Karnataka">Karnataka</option>
                 <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -358,7 +358,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
                 <option value="Andaman &amp; Nicobar">Andaman &amp; Nicobar</option>
                 <option value="Lakshadweep">Lakshadweep</option>
               </optgroup>
-              <optgroup label="🟠 Central / West India — ₹120/kg">
+              <optgroup label="🟠 Central / West India — ₹140/kg">
                 <option value="Maharashtra">Maharashtra</option>
                 <option value="Goa">Goa</option>
                 <option value="Gujarat">Gujarat</option>
@@ -464,21 +464,21 @@ const COURIER_PRODS = [
 ];
 const ZONES = {
   Kerala:          {label:'Kerala',             rate:70},
-  'Tamil Nadu':    {label:'South India',        rate:90},
-  Karnataka:       {label:'South India',        rate:90},
-  'Andhra Pradesh':{label:'South India',        rate:90},
-  Telangana:       {label:'South India',        rate:90},
-  Puducherry:      {label:'South India',        rate:90},
-  'Andaman & Nicobar':{label:'South India',     rate:90},
-  Lakshadweep:     {label:'South India',        rate:90},
-  Maharashtra:     {label:'Central/West India', rate:120},
-  Goa:             {label:'Central/West India', rate:120},
-  Gujarat:         {label:'Central/West India', rate:120},
-  'Madhya Pradesh':{label:'Central/West India', rate:120},
-  Rajasthan:       {label:'Central/West India', rate:120},
-  Chhattisgarh:    {label:'Central/West India', rate:120},
-  'Dadra & Nagar Haveli':{label:'Central/West India', rate:120},
-  'Daman & Diu':   {label:'Central/West India', rate:120},
+  'Tamil Nadu':    {label:'South India',        rate:100},
+  Karnataka:       {label:'South India',        rate:100},
+  'Andhra Pradesh':{label:'South India',        rate:100},
+  Telangana:       {label:'South India',        rate:100},
+  Puducherry:      {label:'South India',        rate:100},
+  'Andaman & Nicobar':{label:'South India',     rate:100},
+  Lakshadweep:     {label:'South India',        rate:100},
+  Maharashtra:     {label:'Central/West India', rate:140},
+  Goa:             {label:'Central/West India', rate:140},
+  Gujarat:         {label:'Central/West India', rate:140},
+  'Madhya Pradesh':{label:'Central/West India', rate:140},
+  Rajasthan:       {label:'Central/West India', rate:140},
+  Chhattisgarh:    {label:'Central/West India', rate:140},
+  'Dadra & Nagar Haveli':{label:'Central/West India', rate:140},
+  'Daman & Diu':   {label:'Central/West India', rate:140},
 };
 function getZone(state){ return ZONES[state] || (state ? {label:'North/East India', rate:160} : null); }
 
@@ -629,7 +629,7 @@ function renderMenu(){
         <select class="ship-select" id="menu-state">
           <option value="">— select your state —</option>
           <optgroup label="🟢 Kerala — ₹70/kg"><option value="Kerala"${menuState==='Kerala'?' selected':''}>Kerala</option></optgroup>
-          <optgroup label="🟡 South India — ₹90/kg">
+          <optgroup label="🟡 South India — ₹100/kg">
             <option value="Tamil Nadu"${menuState==='Tamil Nadu'?' selected':''}>Tamil Nadu</option>
             <option value="Karnataka"${menuState==='Karnataka'?' selected':''}>Karnataka</option>
             <option value="Andhra Pradesh"${menuState==='Andhra Pradesh'?' selected':''}>Andhra Pradesh</option>
@@ -638,7 +638,7 @@ function renderMenu(){
             <option value="Andaman &amp; Nicobar"${menuState==='Andaman & Nicobar'?' selected':''}>Andaman &amp; Nicobar</option>
             <option value="Lakshadweep"${menuState==='Lakshadweep'?' selected':''}>Lakshadweep</option>
           </optgroup>
-          <optgroup label="🟠 Central / West India — ₹120/kg">
+          <optgroup label="🟠 Central / West India — ₹140/kg">
             <option value="Maharashtra"${menuState==='Maharashtra'?' selected':''}>Maharashtra</option>
             <option value="Goa"${menuState==='Goa'?' selected':''}>Goa</option>
             <option value="Gujarat"${menuState==='Gujarat'?' selected':''}>Gujarat</option>
