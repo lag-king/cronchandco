@@ -892,6 +892,8 @@ document.addEventListener('DOMContentLoaded', function(){
   // Place order
   document.getElementById('btn-place').addEventListener('click', placeOrder);
 
+  // Location pin button lives inside the porter block, which is built later
+
   // Phone field: digits and spaces only, clear the warning once it is valid
   const pf = document.getElementById('f-phone');
   if(pf) pf.addEventListener('input', function(){

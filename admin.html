@@ -164,11 +164,19 @@ input,textarea,select,button{font-family:'DM Sans',sans-serif;font-size:16px}
 .cbar-t b{font-family:'Playfair Display',serif;font-size:16px;color:var(--text)}
 .awbwrap{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
 .awbwrap .field{flex:1;margin-bottom:0}
+.tag.mode-courier{color:var(--blue);border-color:var(--blue);background:var(--blue-light)}
+.tag.mode-porter{color:var(--amber);border-color:var(--amber);background:var(--amber-light)}
+.tag.mode-pickup{color:var(--green);border-color:var(--green);background:var(--green-light)}
 .tag.awb-no{color:var(--amber);border-color:var(--amber);background:var(--amber-light)}
 .tag.awb-send{color:var(--red-dark);border-color:var(--red);background:var(--red-light)}
 .tag.awb-ok{color:var(--green);border-color:var(--green);background:var(--green-light)}
 .chip i.rdy{font-style:normal;font-size:10px;display:block;color:var(--green);letter-spacing:0;margin-top:1px}
 .chip.on i.rdy{color:#fff;opacity:.85}
+.pinrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;background:#f2ece4;border-radius:9px;padding:9px 11px}
+.pinrow a{font-size:13px;color:var(--red);text-decoration:none;font-weight:500}
+.pinrow .pinalt{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:14px;padding:4px 10px;background:#fff}
+.pinrow.own{background:var(--green-light)}
+.pinrow.own a{color:var(--green)}
 .flagrow{font-size:12px;color:var(--amber);background:var(--amber-light);border-radius:8px;padding:8px 11px;line-height:1.5}
 .sortrow{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
 .sortrow::-webkit-scrollbar{display:none}
@@ -230,6 +238,7 @@ input,textarea,select,button{font-family:'DM Sans',sans-serif;font-size:16px}
   <!-- PACKING -->
   <div id="view-pack" class="hide">
     <div class="chips" id="p-chips"></div>
+    <div class="chips" id="p-modes"></div>
     <div class="body" id="p-body"></div>
   </div>
 
@@ -346,6 +355,7 @@ let oFilter  = 'new';
 let sSort    = 'status';  // how the sent list is ordered
 let oSearch  = '';
 let packStat = {new:true, packed:false};
+let packMode = 'all';   // all | courier | porter | pickup
 let openIds  = {};
 let ed       = null;   // editor working copy
 let edFlav;            // which flavour group is open in the editor (null = all closed)
@@ -383,6 +393,46 @@ function prettyPhone(p){
   const d = String(p || '').replace(/\D/g, '');
   return d.length === 10 ? '+91 ' + d : (d ? '+' + d : '');
 }
+// a pin the customer shared, or a maps search built from the address as a fallback
+function isCoords(v){ return /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(String(v || '').trim()); }
+// coordinates out of a WhatsApp or Google Maps link, when they are in there
+function parseLatLng(text){
+  const t = String(text || '').trim();
+  if(!t) return '';
+  const pats = [
+    /^(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)$/,
+    /[?&]q=(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/,
+    /[?&]ll=(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/,
+    /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+    /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/
+  ];
+  for(let i = 0; i < pats.length; i++){
+    const m = t.match(pats[i]);
+    if(m) return Number(m[1]).toFixed(6) + ',' + Number(m[2]).toFixed(6);
+  }
+  return '';
+}
+function coordsOf(o){ return parseLatLng(o.location || ''); }
+// the exact link the customer sent, which is what Android offers to open in Porter
+function rawLink(o){
+  const l = (o.location || '').trim();
+  return /^https?:\/\//i.test(l) ? l : '';
+}
+// a geo: link makes Android show its app chooser, Porter included
+function geoLink(o){
+  const c = coordsOf(o);
+  return c ? 'geo:' + c + '?q=' + c : '';
+}
+function pinUrl(o){
+  const loc = (o.location || '').trim();
+  const c   = parseLatLng(loc);
+  if(c) return 'https://maps.google.com/?q=' + c;
+  if(/^https?:\/\//i.test(loc)) return loc;
+  const parts = [o.address, o.state, o.pincode].filter(Boolean).join(', ');
+  return parts ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(parts) : '';
+}
+function hasOwnPin(o){ const l = (o.location || '').trim(); return !!l; }
+
 // everything the courier person needs, in one block
 function courierBlock(o){
   const jars = jarCount(o);
@@ -393,6 +443,10 @@ function courierBlock(o){
   });
   let t = (o.name || '') + '\n' + prettyPhone(o.phone) + '\n' + (o.address || '');
   if(o.state || o.pincode) t += '\n' + [o.state, o.pincode].filter(Boolean).join(' ');
+  const loc = (o.location || '').trim();
+  const c = parseLatLng(loc);
+  if(/^https?:\/\//i.test(loc)) t += '\nPin: ' + loc + (c ? '\n' + c : '');
+  else if(c)                     t += '\nPin: ' + c + '\nhttps://maps.google.com/?q=' + c;
   t += '\n\n' + jars + ' jar' + (jars === 1 ? '' : 's');
   if(isCourier(o)) t += ', about ' + (Math.round(w * 10) / 10) + 'kg';
   return t;
@@ -688,6 +742,12 @@ function orderCard(o){
     if(o.address){
       h += '<div class="dsect"><div class="dlabel">address</div><div class="dtext">' + esc(o.address) +
            (o.state ? '<br>' + esc(o.state) : '') + (o.pincode ? ' ' + esc(o.pincode) : '') + '</div>';
+      if(pinUrl(o)){
+        h += '<div class="pinrow' + (hasOwnPin(o) ? ' own' : '') + '">' +
+               '<a class="pinmain" href="' + esc(rawLink(o) || pinUrl(o)) + '" target="_blank" rel="noopener">' +
+                 (hasOwnPin(o) ? 'open the link they sent' : 'look up this address on maps') + '</a>' +
+               (geoLink(o) ? '<a class="pinalt" href="' + esc(geoLink(o)) + '">open in an app</a>' : '') + '</div>';
+      }
       h += '<div class="btn-row" style="margin-top:10px">' +
              '<button class="btn ghost sm" data-copy="' + esc(o.id) + '">copy for courier</button>' +
              (COURIER_WA ? '<button class="btn ghost sm" data-tocourier="' + esc(o.id) + '">send to courier</button>' : '') +
@@ -720,7 +780,7 @@ function orderCard(o){
     const next = NEXT_STEP[o.status];
     h += '<div class="dsect"><div class="dlabel">status</div><div class="btn-row">';
     if(next === 'sent'){
-      h += '<button class="btn green" data-dispatch="' + esc(o.id) + '">mark sent + notify</button>';
+      h += '<button class="btn green" data-dispatch="' + esc(o.id) + '">mark sent</button>';
     } else if(next){
       h += '<button class="btn green" data-next="' + esc(o.id) + '">mark ' + next + '</button>';
     }
@@ -759,24 +819,34 @@ function renderPack(){
   el('p-chips').innerHTML = [['new','to pack'],['packed','already packed']].map(c =>
     '<button class="chip' + (packStat[c[0]] ? ' on' : '') + '" data-pstat="' + c[0] + '">' + c[1] + '</button>').join('');
 
-  const orders = ORDERS.filter(o => sel.indexOf(o.status) > -1);
-  const ticks  = JSON.parse(localStorage.getItem('cronch_pack_ticks') || '{}');
+  const inStatus = ORDERS.filter(o => sel.indexOf(o.status) > -1);
+  const orders   = inStatus.filter(o => packMode === 'all' || modeShort(o) === packMode);
+  const ticks    = JSON.parse(localStorage.getItem('cronch_pack_ticks') || '{}');
+
+  // courier jars get packed differently from a Porter drop, so keep them separable
+  const modeChips = [['all','everything'],['courier','courier'],['porter','porter'],['pickup','pickup']];
+  el('p-modes').innerHTML = modeChips.map(c => {
+    const n = c[0] === 'all' ? inStatus.length : inStatus.filter(o => modeShort(o) === c[0]).length;
+    return '<button class="chip' + (packMode === c[0] ? ' on' : '') + '" data-pmode="' + c[0] + '">' +
+           c[1] + '<b>' + n + '</b></button>';
+  }).join('');
 
   // one line per jar: kind, size, flavour
   const agg = {};
   orders.forEach(o => itemsOf(o).forEach(i => {
     const j   = splitJar(shortName(i.name));
-    const key = j.kind + '|' + j.size + '|' + j.flavour;
+    const key = packMode + '|' + j.kind + '|' + j.size + '|' + j.flavour;
     agg[key]  = (agg[key] || 0) + (Number(i.qty) || 0);
   }));
   const keys    = Object.keys(agg);
   const totJars = keys.reduce((n, k) => n + agg[k], 0);
 
   let h = '<div class="packsum"><div class="packsum-n">' + totJars + '</div>' +
-          '<div class="packsum-l">jars to pack · ' + orders.length + ' order' + (orders.length === 1 ? '' : 's') + '</div></div>';
+          '<div class="packsum-l">jars to pack · ' + orders.length + ' order' + (orders.length === 1 ? '' : 's') +
+          (packMode === 'all' ? '' : ' · ' + packMode + ' only') + '</div></div>';
 
   if(!totJars){
-    el('p-body').innerHTML = h + '<div class="empty">Nothing to pack for the selected statuses.</div>';
+    el('p-body').innerHTML = h + '<div class="empty">Nothing to pack here.</div>';
     return;
   }
 
@@ -784,10 +854,10 @@ function renderPack(){
 
   // glass crate first, then plastic; smallest size first inside each
   ['Glass','Plastic'].forEach(kind => {
-    const mine = keys.filter(k => k.indexOf(kind + '|') === 0)
+    const mine = keys.filter(k => k.split('|')[1] === kind)
                      .sort((a, b) => {
                        const A = a.split('|'), B = b.split('|');
-                       return (parseInt(A[1], 10) || 0) - (parseInt(B[1], 10) || 0) || A[2].localeCompare(B[2]);
+                       return (parseInt(A[2], 10) || 0) - (parseInt(B[2], 10) || 0) || A[3].localeCompare(B[3]);
                      });
     if(!mine.length) return;
     const sub = mine.reduce((n, k) => n + agg[k], 0);
@@ -797,7 +867,7 @@ function renderPack(){
       const on = !!ticks['agg:' + k];
       h += '<div class="packrow' + (on ? ' done' : '') + '">' +
              '<button class="packbox' + (on ? ' on' : '') + '" data-tick="agg:' + esc(k) + '">' + (on ? '✓' : '') + '</button>' +
-             '<span class="packrow-n"><b>' + esc(p[1]) + '</b> · ' + esc(p[2]) + '</span>' +
+             '<span class="packrow-n"><b>' + esc(p[2]) + '</b> · ' + esc(p[3]) + '</span>' +
              '<span class="packrow-q">' + agg[k] + '</span>' +
            '</div>';
     });
@@ -808,8 +878,7 @@ function renderPack(){
   h += '<div class="dlabel" style="padding:18px 2px 8px">order by order</div>';
   orders.forEach(o => {
     h += '<div class="packgrp"><div class="packgrp-h"><span>' + esc(o.name || 'no name') + '</span>' +
-         '<span style="font-family:\'DM Sans\',sans-serif;font-size:12px;color:var(--muted);font-weight:400">' +
-         esc(modeShort(o)) + '</span></div>';
+         '<span class="tag mode-' + modeShort(o) + '">' + esc(modeShort(o)) + '</span></div>';
     itemsOf(o).forEach(i => {
       const j = splitJar(shortName(i.name));
       h += '<div class="packrow"><span class="packrow-n"><b>' + esc(j.size) + ' ' + esc(j.kind.toLowerCase()) +
@@ -934,7 +1003,16 @@ function renderLanePorter(){
              '<span class="pill ' + o.status + '">' + o.status + '</span></div></div>';
     h += '<div class="odetail">' +
            '<div class="dsect"><div class="dlabel">drop address</div><div class="dtext">' + esc(o.address || 'no address') +
-             (o.pincode ? '<br>Kochi ' + esc(o.pincode) : '') + '</div></div>' +
+             (o.pincode ? '<br>Kochi ' + esc(o.pincode) : '') + '</div>' +
+             (pinUrl(o)
+               ? '<div class="pinrow' + (hasOwnPin(o) ? ' own' : '') + '">' +
+                   '<a class="pinmain" href="' + esc(rawLink(o) || pinUrl(o)) + '" target="_blank" rel="noopener">' +
+                     (hasOwnPin(o) ? 'open the link they sent' : 'look up this address on maps') + '</a>' +
+                   (geoLink(o) ? '<a class="pinalt" href="' + esc(geoLink(o)) + '">open in an app</a>' : '') +
+                   (coordsOf(o) ? '<button class="copybtn" data-copycoords="' + esc(o.id) + '">copy ' + esc(coordsOf(o)) + '</button>' : '') +
+                 '</div>'
+               : '') +
+           '</div>' +
            '<div class="dsect"><div class="dlabel">phone</div><div class="dtext">' +
              '<a href="tel:' + esc(o.phone) + '">' + esc(prettyPhone(o.phone)) + '</a></div></div>' +
            '<div class="field"><label>Porter tracking link or rider number (optional)</label>' +
@@ -942,7 +1020,8 @@ function renderLanePorter(){
            '<div class="btn-row">' +
              '<button class="btn ghost sm" data-copy="' + esc(o.id) + '">copy for Porter</button>' +
              (o.status === 'new' ? '<button class="btn ghost sm" data-packed="' + esc(o.id) + '">packed</button>' : '') +
-             '<button class="btn green sm" data-porterout="' + esc(o.id) + '">mark sent + notify</button>' +
+             '<button class="btn ghost sm" data-wa="dispatch" data-oid="' + esc(o.id) + '">notify</button>' +
+             '<button class="btn green sm" data-porterout="' + esc(o.id) + '">mark sent</button>' +
            '</div></div></div>';
   });
   el('c-body').innerHTML = h;
@@ -1284,6 +1363,11 @@ document.addEventListener('DOMContentLoaded', function(){
     if(c){ packStat[c.dataset.pstat] = !packStat[c.dataset.pstat]; renderPack(); }
   });
 
+  el('p-modes').addEventListener('click', e => {
+    const c = e.target.closest('.chip');
+    if(c){ packMode = c.dataset.pmode; renderPack(); }
+  });
+
   // ── ORDERS: clicks ──
   el('o-list').addEventListener('click', async e => {
     const head = e.target.closest('[data-toggle]');
@@ -1346,8 +1430,8 @@ document.addEventListener('DOMContentLoaded', function(){
       };
       const ok = await patchOrder(o.id, patch, true);
       if(!ok) return;
-      toast('Marked sent. Opening WhatsApp.');
-      window.open(waLink(o.phone, msgDispatch(Object.assign({}, o, patch))), '_blank');
+      toast('Marked sent. Message the customer from the buttons above when you are ready.');
+      render();
       return;
     }
     if(btn.dataset.paid){
@@ -1414,12 +1498,18 @@ document.addEventListener('DOMContentLoaded', function(){
     const btn = e.target.closest('button');
     if(btn){
       const id = btn.dataset.porterout || btn.dataset.collected || btn.dataset.packed ||
-                 btn.dataset.paid || btn.dataset.copy || btn.dataset.oid;
+                 btn.dataset.paid || btn.dataset.copy || btn.dataset.copycoords || btn.dataset.oid;
       const o  = ORDERS.find(x => x.id === id);
       if(o){
         if(btn.dataset.copy){ copyText(courierBlock(o), 'Details copied'); return; }
+        if(btn.dataset.copycoords){ copyText(coordsOf(o) || (o.location || ''), 'Coordinates copied'); return; }
         if(btn.dataset.wa){
-          window.open(waLink(o.phone, msgPacked(o)), '_blank');
+          // the tracking box may hold something not saved yet, so use what is on screen
+          const card = btn.closest('.ocard');
+          const trk  = card ? card.querySelector('[data-f="tracking"]') : null;
+          const live = Object.assign({}, o, trk && trk.value.trim() ? {tracking:trk.value.trim()} : {});
+          const text = btn.dataset.wa === 'dispatch' ? msgDispatch(live) : msgPacked(live);
+          window.open(waLink(o.phone, text), '_blank');
           return;
         }
         if(btn.dataset.packed){ await patchOrder(o.id, {status:'packed'}); return; }
@@ -1435,8 +1525,7 @@ document.addEventListener('DOMContentLoaded', function(){
           };
           const ok = await patchOrder(o.id, patch, true);
           if(!ok) return;
-          toast('Marked sent. Opening WhatsApp.');
-          window.open(waLink(o.phone, msgDispatch(Object.assign({}, o, patch))), '_blank');
+          toast('Marked sent');
           return;
         }
         if(btn.dataset.collected){
