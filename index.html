@@ -206,6 +206,11 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--red)}
 .field textarea{height:82px;resize:none;line-height:1.5}
 .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6a5a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.phone-row{display:flex;align-items:stretch}
+.phone-cc{display:flex;align-items:center;padding:0 13px;background:#f2ece4;border:1.5px solid var(--border);border-right:none;border-radius:10px 0 0 10px;font-size:16px;color:var(--muted);flex-shrink:0}
+.phone-row input{border-radius:0 10px 10px 0!important}
+.phone-hint{font-size:11px;color:var(--muted);font-weight:300}
+.phone-hint.bad{color:var(--red)}
 .place-btn{width:100%;padding:17px;background:var(--red);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(200,73,58,0.35);-webkit-appearance:none}
 .place-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.75;font-weight:300;margin-top:10px}
 
@@ -334,7 +339,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
         <div class="form-block">
           <div class="form-block-label">your details</div>
           <div class="field"><label>full name</label><input type="text" id="f-name" placeholder="your name" autocomplete="name"></div>
-          <div class="field"><label>whatsapp number</label><input type="tel" id="f-phone" placeholder="+91 98765 43210" autocomplete="tel"></div>
+          <div class="field"><label>whatsapp number</label><div class="phone-row"><span class="phone-cc">+91</span><input type="tel" id="f-phone" placeholder="98765 43210" autocomplete="tel" inputmode="numeric" maxlength="11"></div><div class="phone-hint" id="phone-hint">10 digit Indian mobile number</div></div>
           <div class="field"><label>email (optional)</label><input type="email" id="f-email" placeholder="you@example.com" autocomplete="email"></div>
         </div>
       </div>
@@ -481,6 +486,16 @@ const ZONES = {
   'Daman & Diu':   {label:'Central/West India', rate:140},
 };
 function getZone(state){ return ZONES[state] || (state ? {label:'North/East India', rate:160} : null); }
+
+// ── PHONE ──
+// Indian mobiles only: 10 digits starting 6, 7, 8 or 9. Returns those 10 digits, or null.
+function toIndianMobile(raw){
+  let d = String(raw || '').replace(/\D/g, '');
+  if(d.length === 13 && d.slice(0,3) === '091') d = d.slice(3);
+  else if(d.length === 12 && d.slice(0,2) === '91') d = d.slice(2);
+  else if(d.length === 11 && d.charAt(0) === '0')  d = d.slice(1);
+  return /^[6-9]\d{9}$/.test(d) ? d : null;
+}
 
 // ── STATE ──
 let mode           = 'kochi';
@@ -791,7 +806,16 @@ function placeOrder(){
   const state  = (isPickup || isPorter) ? 'Kerala' : (stateEl ? stateEl.value.trim() : menuState || '');
   const pin    = isPickup ? '' : (pinEl ? pinEl.value.trim() : '');
 
-  if(!name || !phone){ alert('please fill in your name and whatsapp number'); return; }
+  if(!name){ alert('please fill in your name'); return; }
+  const phone10 = toIndianMobile(phone);
+  if(!phone10){
+    const hint = document.getElementById('phone-hint');
+    if(hint){ hint.textContent = 'needs a 10 digit Indian mobile number starting with 6, 7, 8 or 9'; hint.className = 'phone-hint bad'; }
+    document.getElementById('f-phone').focus();
+    alert('please enter a valid 10 digit Indian mobile number.\nit should start with 6, 7, 8 or 9.');
+    return;
+  }
+  const phoneDisp = '+91 ' + phone10;
   if(isPorter && (!addr || !pin)){ alert('please fill in your delivery address and pincode'); return; }
   if(!isPickup && !isPorter && (!addr || !state || !pin)){ alert('please fill in your address, state and pincode'); return; }
 
@@ -819,11 +843,11 @@ function placeOrder(){
   msgBody += `\n*Total: Rs.${sub + ship}*`;
   if(ship) msgBody += ` (estimate)`;
   const contactBlock = isPickup
-    ? `${name}\n${phone}`
-    : `${name}\n${phone}${email ? '\n' + email : ''}\n${addrText}`;
+    ? `${name}\n${phoneDisp}`
+    : `${name}\n${phoneDisp}${email ? '\n' + email : ''}\n${addrText}`;
   const msg = `${msgBody}\n---\n${modeLabel}\n${contactBlock}`;
 
-  const order = {id:'ORD-'+Date.now(), timestamp:new Date().toISOString(), name, phone, email, mode:modeLabel, address:addrText, items:items.map(p=>({name:p.name,qty:qtys[p.id],price:p.price})), subtotal:sub, shipping:ship, total:sub+ship};
+  const order = {id:'ORD-'+Date.now(), timestamp:new Date().toISOString(), name, phone:phone10, email, mode:modeLabel, address:addrText, items:items.map(p=>({name:p.name,qty:qtys[p.id],price:p.price})), subtotal:sub, shipping:ship, total:sub+ship};
   try{ const saved=JSON.parse(localStorage.getItem('cronch_orders')||'[]'); saved.push(order); localStorage.setItem('cronch_orders',JSON.stringify(saved)); }catch(e){}
 
   // Supabase insert — non-blocking; localStorage is the backup. Guarded so the app still works if the CDN is blocked.
@@ -867,6 +891,14 @@ document.addEventListener('DOMContentLoaded', function(){
 
   // Place order
   document.getElementById('btn-place').addEventListener('click', placeOrder);
+
+  // Phone field: digits and spaces only, clear the warning once it is valid
+  const pf = document.getElementById('f-phone');
+  if(pf) pf.addEventListener('input', function(){
+    this.value = this.value.replace(/[^\d ]/g, '');
+    const hint = document.getElementById('phone-hint');
+    if(hint && toIndianMobile(this.value)){ hint.textContent = '10 digit Indian mobile number'; hint.className = 'phone-hint'; }
+  });
 
   // Start again
   document.getElementById('btn-again').addEventListener('click', goLanding);

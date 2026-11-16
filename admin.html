@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Cronch &amp; Co. — Orders</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#C8493A;--red-dark:#a33829;--red-light:#fdecea;
+  --cream:#FAF7F2;--text:#1a1108;--muted:#7a6a5a;--border:#e2d8cf;
+  --green:#3a7d44;--green-light:#eaf3eb;--amber:#b07d00;--amber-light:#fff6e0;
+  --blue:#3a5f7d;--blue-light:#eaf0f3;
+}
+html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-size:16px;-webkit-text-size-adjust:100%}
+.hide{display:none!important}
+
+/* ── LOGIN GATE ── */
+#gate{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;background:var(--red);text-align:center}
+.gate-logo{font-family:'Playfair Display',serif;color:#fff;font-size:30px;font-weight:900;line-height:1.1;margin-bottom:6px}
+.gate-tag{color:rgba(255,255,255,0.58);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.gate-card{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:360px;text-align:left}
+.gate-card h2{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin-bottom:6px}
+.gate-card p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;font-weight:300}
+.gate-msg{font-size:13px;line-height:1.6;padding:12px 14px;border-radius:10px;margin-top:14px;display:none}
+.gate-msg.ok{background:var(--green-light);color:var(--green);display:block}
+.gate-msg.err{background:var(--red-light);color:var(--red-dark);display:block}
+
+/* ── SHARED CONTROLS ── */
+input,textarea,select,button{font-family:'DM Sans',sans-serif;font-size:16px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.field textarea,.field select{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 13px;color:var(--text);outline:none;width:100%;-webkit-appearance:none}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--red)}
+.field textarea{height:72px;resize:vertical;line-height:1.5}
+.field.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{background:var(--red);color:#fff;border:none;border-radius:11px;padding:13px 18px;font-size:15px;font-weight:500;cursor:pointer;width:100%;-webkit-appearance:none}
+.btn:active{background:var(--red-dark)}
+.btn.ghost{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn.green{background:var(--green)}
+.btn.sm{padding:10px 14px;font-size:13px;width:auto}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{width:auto;flex:1;min-width:120px}
+
+/* ── APP HEADER ── */
+.app-header{background:var(--red);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(200,73,58,0.28)}
+.hdr-logo{font-family:'Playfair Display',serif;color:#fff;font-size:17px;font-weight:900;line-height:1.1}
+.hdr-logo span{display:block;font-size:12px;opacity:0.8;font-family:'DM Sans',sans-serif;font-weight:300;letter-spacing:1px;text-transform:uppercase}
+.hdr-acts{display:flex;align-items:center;gap:8px}
+.hdr-btn{background:rgba(255,255,255,0.18);border:none;color:#fff;border-radius:20px;padding:8px 13px;font-size:12px;cursor:pointer;-webkit-appearance:none}
+
+/* ── TABS ── */
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:59px;z-index:99}
+.tab{flex:1;padding:14px 6px;background:none;border:none;border-bottom:2.5px solid transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;-webkit-appearance:none}
+.tab.on{color:var(--red);border-bottom-color:var(--red)}
+
+/* ── FILTER CHIPS ── */
+.chips{display:flex;gap:7px;overflow-x:auto;padding:12px 14px 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap;-webkit-appearance:none}
+.chip.on{background:var(--red);border-color:var(--red);color:#fff}
+.chip b{font-weight:500;opacity:0.7;margin-left:4px}
+.searchwrap{padding:8px 14px 4px}
+.searchwrap input{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:11px;padding:12px 13px;outline:none;-webkit-appearance:none}
+.searchwrap input:focus{border-color:var(--red)}
+
+/* ── ORDER CARDS ── */
+.body{padding:10px 14px 60px}
+.ocard{background:#fff;border:1.5px solid var(--border);border-radius:15px;margin-bottom:10px;overflow:hidden}
+.ocard.st-new{border-color:var(--red)}
+.ohead{padding:13px 15px;cursor:pointer;display:flex;gap:11px;align-items:flex-start}
+.ohead-main{flex:1;min-width:0}
+.oname{font-size:15px;font-weight:500;line-height:1.3}
+.ometa{font-size:12px;color:var(--muted);margin-top:3px;font-weight:300;line-height:1.5}
+.ohead-right{text-align:right;flex-shrink:0}
+.ototal{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;white-space:nowrap}
+.pill{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:500;padding:4px 9px;border-radius:20px;margin-top:6px}
+.pill.new{background:var(--red-light);color:var(--red-dark)}
+.pill.packed{background:var(--blue-light);color:var(--blue)}
+.pill.sent{background:var(--green-light);color:var(--green)}
+.pill.cancelled{background:#eee;color:var(--muted);text-decoration:line-through}
+.tag{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-right:5px}
+.tag.wa{color:var(--green);border-color:var(--green)}
+.tag.paid{color:var(--green);border-color:var(--green)}
+
+/* ── ORDER DETAIL ── */
+.odetail{border-top:1px solid var(--border);padding:14px 15px;background:#fdfbf9}
+.dsect{margin-bottom:14px}
+.dsect:last-child{margin-bottom:0}
+.dlabel{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:7px}
+.drow{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)}
+.drow:last-child{border-bottom:none}
+.drow .lbl{color:var(--muted);font-weight:300}
+.drow.tot{font-family:'Playfair Display',serif;font-weight:700;font-size:15px}
+.dtext{font-size:14px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.dtext a{color:var(--red)}
+.copybtn{background:none;border:none;color:var(--red);font-size:12px;cursor:pointer;padding:4px 0;text-decoration:underline}
+
+/* ── PACKING ── */
+.packsum{background:var(--red);color:#fff;border-radius:15px;padding:16px 18px;margin-bottom:12px}
+.packsum-n{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;line-height:1}
+.packsum-l{font-size:12px;opacity:0.75;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.packgrp{background:#fff;border:1.5px solid var(--border);border-radius:15px;margin-bottom:10px;overflow:hidden}
+.packgrp-h{background:#f2ece4;padding:10px 15px;font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--red);display:flex;justify-content:space-between}
+.packrow{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:1px solid var(--border)}
+.packrow:last-child{border-bottom:none}
+.packrow.done{opacity:0.45}
+.packrow.done .packrow-n{text-decoration:line-through}
+.packbox{width:26px;height:26px;border-radius:7px;border:2px solid var(--border);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;cursor:pointer;-webkit-appearance:none;padding:0}
+.packbox.on{background:var(--green);border-color:var(--green)}
+.packrow-n{flex:1;font-size:14px}
+.packrow-q{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;min-width:36px;text-align:right}
+.packnote{font-size:12px;color:var(--muted);line-height:1.6;font-weight:300;padding:4px 2px 14px}
+
+/* ── EDITOR ── */
+.ecard{background:#fff;border:1.5px solid var(--border);border-radius:15px;padding:15px;margin-bottom:12px}
+.ecard-h{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:12px}
+.modeopts{display:flex;gap:8px;margin-bottom:4px}
+.modeopt{flex:1;background:#fff;border:2px solid var(--border);border-radius:11px;padding:11px 6px;font-size:12px;cursor:pointer;text-align:center;-webkit-appearance:none;color:var(--text);line-height:1.4}
+.modeopt.on{border-color:var(--red);background:var(--red-light);color:var(--red-dark)}
+.prow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.prow:last-child{border-bottom:none}
+.prow-n{flex:1;font-size:13.5px;line-height:1.35}
+.prow-n small{display:block;color:var(--muted);font-size:11px;font-weight:300}
+.iqc{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.iq-btn{width:31px;height:31px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;-webkit-appearance:none;padding:0}
+.iq-btn.minus{background:#fff;color:var(--red);border:2px solid var(--red)}
+.iq-btn.dim{opacity:0.25;pointer-events:none}
+.iq-n{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;min-width:18px;text-align:center}
+.flavhead{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--red);padding:12px 0 2px}
+.flavhead:first-child{padding-top:0}
+.eflav{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:11px;padding:12px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:7px;-webkit-appearance:none}
+.eflav.has,.eflav.open{border-color:var(--red)}
+.eflav-n{flex:1;text-align:left;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--red)}
+.eflav-c{background:var(--red);color:#fff;font-size:12px;font-weight:700;min-width:21px;height:21px;border-radius:11px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.eflav-ch{color:var(--muted);font-size:15px}
+.ebarwrap{position:fixed;left:0;right:0;bottom:0;z-index:200;box-shadow:0 -4px 20px rgba(26,17,8,0.12)}
+.ebar{background:#fff;border-top:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.ebar-l{flex:1;min-width:0;background:none;border:none;padding:0;text-align:left;cursor:pointer;-webkit-appearance:none}
+.ebar-items{display:block;font-size:12.5px;color:var(--text);line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ebar-items.empty{color:var(--muted);font-weight:300}
+.ebar-tot{display:block;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--text);margin-top:3px}
+.ebar-tot i{font-family:'DM Sans',sans-serif;font-style:normal;font-size:11px;font-weight:400;color:var(--red);margin-left:5px}
+.ebarlist{background:#fff;border-top:1px solid var(--border);max-height:42vh;overflow-y:auto;padding:4px 14px}
+.ebarrow{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+.ebarrow:last-child{border-bottom:none}
+.ebarrow span:first-child{flex:1;min-width:0}
+.ebarrow-q{color:var(--muted);font-size:12px}
+.ebarrow-p{font-family:'Playfair Display',serif;font-weight:700;min-width:62px;text-align:right}
+.ebarrow.tot{color:var(--muted);font-weight:300}
+.ebarrow.tot .ebarrow-p{color:var(--text)}
+#view-edit .body{padding-bottom:104px}
+#view-courier .body{padding-bottom:104px}
+.crow{background:#fff;border:1.5px solid var(--border);border-radius:13px;margin-bottom:8px;padding:12px 13px;display:flex;gap:11px;align-items:flex-start;cursor:pointer}
+.crow.on{border-color:var(--red);background:var(--red-light)}
+.crow-main{flex:1;min-width:0}
+.crow-n{font-size:14.5px;font-weight:500}
+.crow-m{font-size:12px;color:var(--muted);margin-top:3px;font-weight:300;line-height:1.5}
+.cbar{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#fff;border-top:1px solid var(--border);padding:11px 14px;box-shadow:0 -4px 20px rgba(26,17,8,0.12)}
+.cbar-t{font-size:13px;color:var(--muted);margin-bottom:9px}
+.cbar-t b{font-family:'Playfair Display',serif;font-size:16px;color:var(--text)}
+.awbwrap{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
+.awbwrap .field{flex:1;margin-bottom:0}
+.tag.awb-no{color:var(--amber);border-color:var(--amber);background:var(--amber-light)}
+.tag.awb-send{color:var(--red-dark);border-color:var(--red);background:var(--red-light)}
+.tag.awb-ok{color:var(--green);border-color:var(--green);background:var(--green-light)}
+.chip i.rdy{font-style:normal;font-size:10px;display:block;color:var(--green);letter-spacing:0;margin-top:1px}
+.chip.on i.rdy{color:#fff;opacity:.85}
+.flagrow{font-size:12px;color:var(--amber);background:var(--amber-light);border-radius:8px;padding:8px 11px;line-height:1.5}
+.sortrow{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.sortrow::-webkit-scrollbar{display:none}
+.sortchip{flex-shrink:0;background:none;border:1px solid var(--border);border-radius:16px;padding:6px 11px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;-webkit-appearance:none}
+.sortchip.on{background:var(--text);border-color:var(--text);color:#fff}
+.esum{background:var(--red-light);border-radius:11px;padding:12px 14px;font-size:14px;line-height:1.9}
+.esum b{font-family:'Playfair Display',serif}
+.toastbar{position:fixed;left:14px;right:14px;bottom:16px;background:var(--text);color:#fff;border-radius:11px;padding:13px 16px;font-size:14px;z-index:300;display:none;box-shadow:0 6px 24px rgba(0,0,0,0.25)}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 20px;line-height:1.7;font-weight:300}
+.loading{text-align:center;color:var(--muted);font-size:14px;padding:40px 20px}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="gate">
+  <div class="gate-logo">cronch and co.</div>
+  <div class="gate-tag">order desk</div>
+  <div class="gate-card">
+    <h2>Sign in</h2>
+    <div class="field">
+      <label>email</label>
+      <input type="email" id="g-email" placeholder="you@example.com" autocomplete="username" inputmode="email">
+    </div>
+    <div class="field">
+      <label>password</label>
+      <input type="password" id="g-pass" placeholder="password" autocomplete="current-password">
+    </div>
+    <button class="btn" id="g-send">sign in</button>
+    <div class="gate-msg" id="g-msg"></div>
+    <p style="margin:14px 0 0;font-size:12px">Stays signed in on this device. Passwords are set in Supabase under Authentication, Users.</p>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" class="hide">
+  <div class="app-header">
+    <div class="hdr-logo">cronch<span>order desk</span></div>
+    <div class="hdr-acts">
+      <button class="hdr-btn" id="btn-refresh">refresh</button>
+      <button class="hdr-btn" id="btn-logout">sign out</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-view="orders">Orders</button>
+    <button class="tab" data-view="pack">Pack</button>
+    <button class="tab" data-view="courier">Send</button>
+    <button class="tab" data-view="edit">Add</button>
+  </div>
+
+  <!-- ORDERS -->
+  <div id="view-orders">
+    <div class="chips" id="o-chips"></div>
+    <div class="searchwrap"><input type="search" id="o-search" placeholder="search name, phone, order id, pincode"></div>
+    <div class="body" id="o-list"><div class="loading">loading orders…</div></div>
+  </div>
+
+  <!-- PACKING -->
+  <div id="view-pack" class="hide">
+    <div class="chips" id="p-chips"></div>
+    <div class="body" id="p-body"></div>
+  </div>
+
+  <!-- COURIER HANDOVER -->
+  <div id="view-courier" class="hide">
+    <div class="chips" id="c-chips"></div>
+    <div class="body" id="c-body"></div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="view-edit" class="hide">
+    <div class="body" id="e-body"></div>
+  </div>
+</div>
+
+<div class="toastbar" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════
+const SUPABASE_URL      = 'https://kdqmsnuxsdoqeaahgnnc.supabase.co';
+const SUPABASE_ANON_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcW1zbnV4c2RvcWVhYWhnbm5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mzc2NDYsImV4cCI6MjA5NjIxMzY0Nn0.V0SInQ4h6YtH40rXOUiNEJkZKPGeOnFpwXQoXtDW6Hw';
+
+// Access is enforced by the database, not by this page. The two addresses
+// allowed to read orders are listed in the SQL function is_cronch_admin()
+// in admin-migration.sql. Create those two logins in Supabase under
+// Authentication, Users, Add user, with a password, and tick auto-confirm.
+
+const BRAND = 'Cronch and Co.';
+const MAPS  = 'https://maps.app.goo.gl/6G4qkx4HXKgZCqQz8';
+const UPI   = '';   // optional: put your UPI id here and it goes into the payment message
+const COURIER_WA = '';  // optional: your courier person's number, e.g. '919876543210'.
+                        // Set it and each order gets a 'send to courier' button.
+
+// ── YOUR COURIERS ──
+// name: what shows in the dropdown. track: the page the customer opens to
+// enter the AWB. Leave track empty and the message just names the courier.
+const COURIERS = [
+  {name:'DTDC',    track:'https://www.dtdc.in/'},
+  {name:'Maruthi', track:'https://shreemaruti.com/track-shipment/'}
+];
+function courierTrack(name){
+  const c = COURIERS.find(x => x.name.toLowerCase() === String(name || '').toLowerCase());
+  return c && c.track ? c.track : '';
+}
+// dropdown options, keeping any value already saved on the order
+function courierOptions(current){
+  const names = COURIERS.map(c => c.name);
+  if(current && names.indexOf(current) === -1) names.push(current);
+  return '<option value="">— pick courier —</option>' +
+    names.map(n => '<option value="' + esc(n) + '"' + (current === n ? ' selected' : '') + '>' + esc(n) + '</option>').join('');
+}
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ════════════════════════════════════════════════════════════
+// CATALOG — kept in step with index.html
+// ════════════════════════════════════════════════════════════
+const KOCHI_PRODS = [
+  {id:'ko160',  flavour:'Original',  size:'160g',         name:'Naadan Chilli Crisp — Original — 160g',          note:'Glass jar',   price:450, wKg:0},
+  {id:'ko280g', flavour:'Original',  size:'280g glass',   name:'Naadan Chilli Crisp — Original — 280g glass',    note:'Glass jar',   price:650, wKg:0},
+  {id:'ko280p', flavour:'Original',  size:'280g plastic', name:'Naadan Chilli Crisp — Original — 280g plastic',  note:'Travel jar',  price:650, wKg:0},
+  {id:'ko330p', flavour:'Original',  size:'330g plastic', name:'Naadan Chilli Crisp — Original — 330g plastic',  note:'Travel jar',  price:800, wKg:0},
+  {id:'ks160',  flavour:'Spicy',     size:'160g',         name:'Naadan Chilli Crisp — Spicy — 160g',             note:'Glass jar',   price:450, wKg:0},
+  {id:'ks280g', flavour:'Spicy',     size:'280g glass',   name:'Naadan Chilli Crisp — Spicy — 280g glass',       note:'Glass jar',   price:650, wKg:0},
+  {id:'ks280p', flavour:'Spicy',     size:'280g plastic', name:'Naadan Chilli Crisp — Spicy — 280g plastic',     note:'Travel jar',  price:650, wKg:0},
+  {id:'ks330p', flavour:'Spicy',     size:'330g plastic', name:'Naadan Chilli Crisp — Spicy — 330g plastic',     note:'Travel jar',  price:800, wKg:0},
+  {id:'kh160',  flavour:'Hot Honey', size:'160g',         name:'Naadan Chilli Crisp — Hot Honey — 160g',         note:'Glass jar',   price:500, wKg:0},
+  {id:'kh280g', flavour:'Hot Honey', size:'280g glass',   name:'Naadan Chilli Crisp — Hot Honey — 280g glass',   note:'Glass jar',   price:700, wKg:0},
+  {id:'kh280p', flavour:'Hot Honey', size:'280g plastic', name:'Naadan Chilli Crisp — Hot Honey — 280g plastic', note:'Travel jar',  price:700, wKg:0},
+  {id:'kh330p', flavour:'Hot Honey', size:'330g plastic', name:'Naadan Chilli Crisp — Hot Honey — 330g plastic', note:'Travel jar',  price:850, wKg:0},
+  {id:'km160',  flavour:'Meat',      size:'160g',         name:'Naadan Chilli Crisp — Meat — 160g',              note:'Glass jar',   price:600, wKg:0},
+  {id:'km280g', flavour:'Meat',      size:'280g glass',   name:'Naadan Chilli Crisp — Meat — 280g glass',        note:'Glass jar',   price:800, wKg:0},
+  {id:'km280p', flavour:'Meat',      size:'280g plastic', name:'Naadan Chilli Crisp — Meat — 280g plastic',      note:'Travel jar',  price:800, wKg:0},
+  {id:'km330p', flavour:'Meat',      size:'330g plastic', name:'Naadan Chilli Crisp — Meat — 330g plastic',      note:'Travel jar',  price:950, wKg:0}
+];
+const COURIER_PRODS = [
+  {id:'co280p', flavour:'Original',  size:'280g', name:'Naadan Chilli Crisp — Original — 280g plastic',  note:'Plastic jar', price:650, wKg:0.35},
+  {id:'co330p', flavour:'Original',  size:'330g', name:'Naadan Chilli Crisp — Original — 330g plastic',  note:'Plastic jar', price:800, wKg:0.4},
+  {id:'cs280p', flavour:'Spicy',     size:'280g', name:'Naadan Chilli Crisp — Spicy — 280g plastic',     note:'Plastic jar', price:650, wKg:0.35},
+  {id:'cs330p', flavour:'Spicy',     size:'330g', name:'Naadan Chilli Crisp — Spicy — 330g plastic',     note:'Plastic jar', price:800, wKg:0.4},
+  {id:'ch280p', flavour:'Hot Honey', size:'280g', name:'Naadan Chilli Crisp — Hot Honey — 280g plastic', note:'Plastic jar', price:700, wKg:0.35},
+  {id:'ch330p', flavour:'Hot Honey', size:'330g', name:'Naadan Chilli Crisp — Hot Honey — 330g plastic', note:'Plastic jar', price:850, wKg:0.4},
+  {id:'cm280p', flavour:'Meat',      size:'280g', name:'Naadan Chilli Crisp — Meat — 280g plastic',      note:'Plastic jar', price:800, wKg:0.35},
+  {id:'cm330p', flavour:'Meat',      size:'330g', name:'Naadan Chilli Crisp — Meat — 330g plastic',      note:'Plastic jar', price:950, wKg:0.4}
+];
+const ZONES = {
+  'Kerala':{label:'Kerala',rate:70},
+  'Tamil Nadu':{label:'South India',rate:100},'Karnataka':{label:'South India',rate:100},
+  'Andhra Pradesh':{label:'South India',rate:100},'Telangana':{label:'South India',rate:100},
+  'Puducherry':{label:'South India',rate:100},'Andaman & Nicobar':{label:'South India',rate:100},
+  'Lakshadweep':{label:'South India',rate:100},
+  'Maharashtra':{label:'Central/West India',rate:140},'Goa':{label:'Central/West India',rate:140},
+  'Gujarat':{label:'Central/West India',rate:140},'Madhya Pradesh':{label:'Central/West India',rate:140},
+  'Rajasthan':{label:'Central/West India',rate:140},'Chhattisgarh':{label:'Central/West India',rate:140},
+  'Dadra & Nagar Haveli':{label:'Central/West India',rate:140},'Daman & Diu':{label:'Central/West India',rate:140}
+};
+const STATES = ['Kerala','Tamil Nadu','Karnataka','Andhra Pradesh','Telangana','Puducherry','Andaman & Nicobar','Lakshadweep','Maharashtra','Goa','Gujarat','Madhya Pradesh','Rajasthan','Chhattisgarh','Dadra & Nagar Haveli','Daman & Diu','Delhi','Uttar Pradesh','Punjab','Haryana','Himachal Pradesh','Uttarakhand','Jammu & Kashmir','Ladakh','Chandigarh','Bihar','Jharkhand','West Bengal','Odisha','Assam','Meghalaya','Manipur','Mizoram','Nagaland','Tripura','Arunachal Pradesh','Sikkim'];
+function getZone(state){ return ZONES[state] || (state ? {label:'North/East India',rate:160} : null); }
+
+const STATUSES  = ['new','packed','sent','cancelled'];
+const NEXT_STEP = {new:'packed', packed:'sent'};
+// older rows may carry the statuses this used to have
+const LEGACY_STATUS = {confirmed:'new', dispatched:'sent', delivered:'sent'};
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+let ORDERS   = [];
+let view     = 'orders';
+let oFilter  = 'new';
+let sSort    = 'status';  // how the sent list is ordered
+let oSearch  = '';
+let packStat = {new:true, packed:false};
+let openIds  = {};
+let ed       = null;   // editor working copy
+let edFlav;            // which flavour group is open in the editor (null = all closed)
+let edBarOpen = false; // bottom bar expanded to the full item list
+let sel      = {};     // orders ticked for the courier handover
+let sendTab  = 'courier';   // which fulfilment lane is showing
+let sendTabPicked = false;  // true once you choose a lane yourself
+let courierName = '';
+
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const el  = id => document.getElementById(id);
+
+function toast(msg){
+  const t = el('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.style.display = 'none'; }, 2600);
+}
+
+function waNumber(phone){
+  let d = String(phone || '').replace(/\D/g, '');
+  if(d.length === 10) d = '91' + d;
+  if(d.length === 11 && d.charAt(0) === '0') d = '91' + d.slice(1);
+  return d;
+}
+function waLink(phone, text){
+  return 'https://wa.me/' + waNumber(phone) + '?text=' + encodeURIComponent(text);
+}
+function shortName(n){ return String(n || '').replace('Naadan Chilli Crisp — ', ''); }
+function prettyPhone(p){
+  const d = String(p || '').replace(/\D/g, '');
+  return d.length === 10 ? '+91 ' + d : (d ? '+' + d : '');
+}
+// everything the courier person needs, in one block
+function courierBlock(o){
+  const jars = jarCount(o);
+  let w = 0;
+  itemsOf(o).forEach(i => {
+    const p = COURIER_PRODS.find(x => x.name === i.name);
+    w += (p ? p.wKg : 0.35) * (Number(i.qty) || 0);
+  });
+  let t = (o.name || '') + '\n' + prettyPhone(o.phone) + '\n' + (o.address || '');
+  if(o.state || o.pincode) t += '\n' + [o.state, o.pincode].filter(Boolean).join(' ');
+  t += '\n\n' + jars + ' jar' + (jars === 1 ? '' : 's');
+  if(isCourier(o)) t += ', about ' + (Math.round(w * 10) / 10) + 'kg';
+  return t;
+}
+function demoConfirmBatch(n){
+  return confirm('Mark ' + n + ' order' + (n === 1 ? '' : 's') + ' as sent?');
+}
+function copyText(txt, okMsg){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(() => toast(okMsg), () => fallbackCopy(txt, okMsg));
+  } else fallbackCopy(txt, okMsg);
+}
+function fallbackCopy(txt, okMsg){
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try{ ok = document.execCommand('copy'); }catch(e){ ok = false; }
+  document.body.removeChild(ta);
+  toast(ok ? okMsg : 'Could not copy automatically');
+}
+function fmtDate(s){
+  if(!s) return '';
+  const d = new Date(s);
+  if(isNaN(d)) return '';
+  return d.toLocaleDateString('en-IN', {day:'numeric', month:'short'}) + ', ' +
+         d.toLocaleTimeString('en-IN', {hour:'numeric', minute:'2-digit'});
+}
+function itemsOf(o){
+  let it = o.items;
+  if(typeof it === 'string'){ try{ it = JSON.parse(it); }catch(e){ it = []; } }
+  return Array.isArray(it) ? it : [];
+}
+function jarCount(o){ return itemsOf(o).reduce((n, i) => n + (Number(i.qty) || 0), 0); }
+function isCourier(o){ return /courier/i.test(o.mode || ''); }
+function isPickup(o){ return /pickup/i.test(o.mode || ''); }
+function isPorter(o){ return /porter/i.test(o.mode || ''); }
+function modeShort(o){ return isCourier(o) ? 'courier' : (isPickup(o) ? 'pickup' : 'porter'); }
+// a pickup order is never 'sent', it is collected
+function statusLabel(o){
+  if(o.status === 'sent') return isPickup(o) ? 'collected' : 'sent';
+  return o.status;
+}
+
+// ════════════════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════════════════
+async function signIn(){
+  const email = el('g-email').value.trim().toLowerCase();
+  const pass  = el('g-pass').value;
+  const msg   = el('g-msg');
+  if(!email || !pass){ msg.className = 'gate-msg err'; msg.textContent = 'Enter your email and password.'; return; }
+  el('g-send').textContent = 'signing in…';
+  const { error } = await db.auth.signInWithPassword({ email:email, password:pass });
+  el('g-send').textContent = 'sign in';
+  if(error){
+    msg.className = 'gate-msg err';
+    msg.textContent = /invalid/i.test(error.message) ? 'Wrong email or password.' : error.message;
+    return;
+  }
+  msg.className = '';
+  msg.textContent = '';
+  el('g-pass').value = '';
+  checkSession();
+}
+
+async function checkSession(){
+  const { data } = await db.auth.getSession();
+  if(data && data.session){
+    el('gate').classList.add('hide');
+    el('app').classList.remove('hide');
+    loadOrders();
+  } else {
+    el('gate').classList.remove('hide');
+    el('app').classList.add('hide');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════
+async function loadOrders(){
+  const { data, error } = await db.from('orders').select('*').order('created_at', {ascending:false});
+  if(error){
+    el('o-list').innerHTML = '<div class="empty">Could not load orders.<br>' + esc(error.message) +
+      '<br><br>If this says permission denied, check that your email is in the is_cronch_admin() list in Supabase.</div>';
+    return;
+  }
+  ORDERS = (data || []).map(o => {
+    const st = o.status || 'new';
+    return Object.assign({}, o, {status: LEGACY_STATUS[st] || st, source: o.source || 'form'});
+  });
+  render();
+}
+
+async function patchOrder(id, patch, quiet){
+  const { error } = await db.from('orders').update(patch).eq('id', id);
+  if(error){ toast('Save failed: ' + error.message); return false; }
+  const o = ORDERS.find(x => x.id === id);
+  if(o) Object.assign(o, patch);
+  if(!quiet) toast('Saved');
+  render();
+  return true;
+}
+
+// ════════════════════════════════════════════════════════════
+// MESSAGE TEMPLATES
+// ════════════════════════════════════════════════════════════
+function itemLines(o){
+  return itemsOf(o).map(i => shortName(i.name) + ' x ' + i.qty).join('\n');
+}
+function msgConfirm(o){
+  let m = 'Hi ' + (o.name || '') + ', thanks for your order with ' + BRAND + '.\n\n' + itemLines(o);
+  if(o.shipping) m += '\nShipping: Rs.' + o.shipping;
+  m += '\nTotal: Rs.' + (o.total || 0) + '\n\n';
+  m += isPickup(o)
+    ? 'We are confirming this now. We will let you know as soon as it is packed and ready for pickup.'
+    : 'We are confirming this now and will update you when it goes out.';
+  if(UPI) m += '\n\nYou can pay to ' + UPI + ' whenever convenient.';
+  return m;
+}
+function msgPacked(o){
+  if(isPickup(o)){
+    return 'Hi ' + (o.name || '') + ', your ' + BRAND + ' order is packed and ready for pickup at Kakkanad, Kochi.\n\n' +
+           itemLines(o) + '\nTotal: Rs.' + (o.total || 0) + '\n\nDirections: ' + MAPS + '\n\nLet us know when you are heading over.';
+  }
+  return 'Hi ' + (o.name || '') + ', your ' + BRAND + ' order is packed and going out shortly.\n\n' +
+         itemLines(o) + '\nTotal: Rs.' + (o.total || 0);
+}
+function msgDispatch(o){
+  let m = 'Hi ' + (o.name || '') + ', your ' + BRAND + ' order has been sent out.\n\n' + itemLines(o) + '\n';
+  if(isCourier(o)){
+    if(o.courier)  m += '\nCourier: ' + o.courier;
+    if(o.tracking) m += '\nTracking: ' + o.tracking;
+    m += '\n\nIt should reach you in the next few days. Let us know once it arrives.';
+  } else {
+    m += '\nOn its way to you in Kochi via Porter.';
+    if(o.tracking) m += '\nPorter tracking: ' + o.tracking;
+    m += '\n\nIt should be with you shortly.';
+  }
+  return m;
+}
+
+// one block per parcel, numbered, for the courier person
+function courierBatch(list, who){
+  const d = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+  let t = BRAND + ' pickup, ' + d + '\n' + list.length + ' parcel' + (list.length === 1 ? '' : 's');
+  if(who) t += '\nCourier: ' + who;
+  list.forEach((o, i) => { t += '\n\n' + (i + 1) + ')\n' + courierBlock(o); });
+  return t;
+}
+function msgAWB(o){
+  let t = 'Hi ' + (o.name || '') + ', your ' + BRAND + ' order has been sent out.\n\n' + itemLines(o) + '\n';
+  if(o.courier)  t += '\nCourier: ' + o.courier;
+  if(o.tracking) t += '\nAWB: ' + o.tracking;
+  const link = courierTrack(o.courier);
+  t += link
+    ? '\n\nTrack it here: ' + link + '\nEnter the AWB number above. Let us know once it reaches you.'
+    : '\n\nYou can track it with that number on the ' + (o.courier || 'courier') + ' website. Let us know once it reaches you.';
+  return t;
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER — router
+// ════════════════════════════════════════════════════════════
+function render(){
+  el('view-orders').classList.toggle('hide',  view !== 'orders');
+  el('view-pack').classList.toggle('hide',    view !== 'pack');
+  el('view-courier').classList.toggle('hide', view !== 'courier');
+  el('view-edit').classList.toggle('hide',    view !== 'edit');
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.view === view));
+  if(view === 'orders') renderOrders();
+  if(view === 'pack')    renderPack();
+  if(view === 'courier') renderCourier();
+  if(view === 'edit')    renderEditor();
+}
+
+// ── ORDERS ──
+function matchFilter(o){
+  if(oFilter === 'all')  return true;
+  if(oFilter === 'unpaid') return !o.paid && o.status !== 'cancelled';
+  return o.status === oFilter;
+}
+function matchSearch(o){
+  if(!oSearch) return true;
+  const q = oSearch.toLowerCase();
+  return [o.name, o.phone, o.id, o.pincode, o.address, o.tracking, o.courier]
+    .some(v => String(v || '').toLowerCase().indexOf(q) > -1);
+}
+
+function renderOrders(){
+  const counts = {all:0, unpaid:0, awb:0, tosend:0};
+  STATUSES.forEach(s => counts[s] = 0);
+  ORDERS.forEach(o => {
+    counts.all++;
+    if(!o.paid && o.status !== 'cancelled') counts.unpaid++;
+    if(o.status === 'sent' && !o.tracking) counts.awb++;
+    if(o.status === 'sent' && o.tracking && !o.awb_sent_at) counts.tosend++;
+    counts[o.status] = (counts[o.status] || 0) + 1;
+  });
+  const chips = [['new','To pack'],['packed','Packed'],['sent','Sent'],
+                 ['unpaid','Unpaid'],['cancelled','Cancelled'],['all','All']];
+  el('o-chips').innerHTML = chips.map(c =>
+    '<button class="chip' + (oFilter === c[0] ? ' on' : '') + '" data-filter="' + c[0] + '">' +
+    c[1] + '<b>' + (counts[c[0]] || 0) + '</b></button>').join('');
+
+  const list = ORDERS.filter(o => matchFilter(o) && matchSearch(o));
+  if(!list.length){
+    let why = 'Nothing here.';
+    if(oFilter === 'sent')   why = 'Nothing sent out yet.';
+    if(!ORDERS.length)       why = 'Nothing here.<br>Orders from the website will show up automatically.';
+    el('o-list').innerHTML = '<div class="empty">' + why + '</div>';
+    return;
+  }
+  if(oFilter === 'sent'){
+    // oldest attention first by default: no AWB, then AWB waiting to go out, then done
+    const rank = o => !o.tracking ? 0 : (!o.awb_sent_at ? 1 : 2);
+    const t    = o => new Date(o.dispatched_at || o.created_at || 0).getTime();
+    if(sSort === 'status') list.sort((a, b) => rank(a) - rank(b) || t(b) - t(a));
+    if(sSort === 'new')    list.sort((a, b) => t(b) - t(a));
+    if(sSort === 'old')    list.sort((a, b) => t(a) - t(b));
+    if(sSort === 'unpaid') list.sort((a, b) => (a.paid ? 1 : 0) - (b.paid ? 1 : 0) || t(b) - t(a));
+
+    const noAwb  = list.filter(o => !o.tracking).length;
+    const toSend = list.filter(o => o.tracking && !o.awb_sent_at).length;
+    const owed   = list.filter(o => !o.paid).length;
+
+    let head = '<div class="sortrow">' +
+      [['status','needs attention'],['new','newest'],['old','oldest'],['unpaid','unpaid first']].map(x =>
+        '<button class="sortchip' + (sSort === x[0] ? ' on' : '') + '" data-sort="' + x[0] + '">' + x[1] + '</button>').join('') +
+      '</div>';
+    const bits = [];
+    if(noAwb)  bits.push(noAwb + ' waiting on an AWB');
+    if(toSend) bits.push(toSend + ' AWB to send on');
+    if(owed)   bits.push(owed + ' unpaid');
+    head += '<div class="packnote">' + (bits.length ? bits.join(' · ') : 'All clear. Every AWB is in and sent.') + '</div>';
+
+    el('o-list').innerHTML = head + list.map(sentCard).join('');
+    return;
+  }
+  el('o-list').innerHTML = list.map(orderCard).join('');
+}
+
+function orderCard(o){
+  const open  = !!openIds[o.id];
+  const items = itemsOf(o);
+  let h = '<div class="ocard st-' + o.status + '" data-oid="' + esc(o.id) + '">';
+
+  h += '<div class="ohead" data-toggle="' + esc(o.id) + '">' +
+         '<div class="ohead-main">' +
+           '<div class="oname">' + esc(o.name || 'no name') + '</div>' +
+           '<div class="ometa">' +
+             (o.source === 'whatsapp' ? '<span class="tag wa">wa</span>' : '') +
+             (o.paid ? '<span class="tag paid">paid</span>' : '') +
+             esc(o.mode || '') + ' · ' + jarCount(o) + ' jar' + (jarCount(o) === 1 ? '' : 's') +
+             (o.created_at ? ' · ' + fmtDate(o.created_at) : '') +
+           '</div>' +
+         '</div>' +
+         '<div class="ohead-right">' +
+           '<div class="ototal">Rs.' + (o.total || 0) + '</div>' +
+           '<span class="pill ' + o.status + '">' + statusLabel(o) + '</span>' +
+         '</div>' +
+       '</div>';
+
+  if(open){
+    h += '<div class="odetail">';
+
+    // items + money
+    h += '<div class="dsect"><div class="dlabel">items</div>';
+    items.forEach(i => {
+      h += '<div class="drow"><span class="lbl">' + esc(shortName(i.name)) + ' &times; ' + esc(i.qty) +
+           '</span><span>Rs.' + ((Number(i.price) || 0) * (Number(i.qty) || 0)) + '</span></div>';
+    });
+    h += '<div class="drow"><span class="lbl">subtotal</span><span>Rs.' + (o.subtotal || 0) + '</span></div>';
+    if(o.shipping) h += '<div class="drow"><span class="lbl">shipping</span><span>Rs.' + o.shipping + '</span></div>';
+    h += '<div class="drow tot"><span>total</span><span>Rs.' + (o.total || 0) + '</span></div></div>';
+
+    // contact
+    h += '<div class="dsect"><div class="dlabel">contact</div><div class="dtext">' +
+           '<a href="tel:' + esc(o.phone) + '">' + esc(o.phone || '') + '</a>' +
+           (o.email ? '<br>' + esc(o.email) : '') +
+         '</div></div>';
+
+    // address + one-click handover to the courier person
+    if(o.address){
+      h += '<div class="dsect"><div class="dlabel">address</div><div class="dtext">' + esc(o.address) +
+           (o.state ? '<br>' + esc(o.state) : '') + (o.pincode ? ' ' + esc(o.pincode) : '') + '</div>';
+      h += '<div class="btn-row" style="margin-top:10px">' +
+             '<button class="btn ghost sm" data-copy="' + esc(o.id) + '">copy for courier</button>' +
+             (COURIER_WA ? '<button class="btn ghost sm" data-tocourier="' + esc(o.id) + '">send to courier</button>' : '') +
+           '</div></div>';
+    }
+
+    // dispatch details
+    h += '<div class="dsect"><div class="dlabel">dispatch</div>' +
+         '<div class="field row2">' +
+           '<div class="field"><label>courier</label>' + (isCourier(o)
+             ? '<select data-f="courier" data-oid="' + esc(o.id) + '">' + courierOptions(o.courier) + '</select>'
+             : '<input type="text" data-f="courier" data-oid="' + esc(o.id) + '" value="' + esc(o.courier || '') + '" placeholder="Porter">') + '</div>' +
+           '<div class="field"><label>tracking no.</label><input type="text" data-f="tracking" data-oid="' + esc(o.id) + '" value="' + esc(o.tracking || '') + '"></div>' +
+         '</div>' +
+         (o.dispatched_at ? '<div class="ometa">sent ' + fmtDate(o.dispatched_at) + '</div>' : '') +
+         '</div>';
+
+    // notes
+    h += '<div class="dsect"><div class="dlabel">notes</div>' +
+         '<div class="field"><textarea data-f="notes" data-oid="' + esc(o.id) + '" placeholder="anything to remember about this order">' + esc(o.notes || '') + '</textarea></div></div>';
+
+    // whatsapp actions
+    h += '<div class="dsect"><div class="dlabel">message customer</div><div class="btn-row">' +
+           '<button class="btn ghost sm" data-wa="confirm" data-oid="' + esc(o.id) + '">confirm</button>' +
+           '<button class="btn ghost sm" data-wa="packed" data-oid="' + esc(o.id) + '">' + (isPickup(o) ? 'ready for pickup' : 'packed') + '</button>' +
+           '<button class="btn ghost sm" data-wa="dispatch" data-oid="' + esc(o.id) + '">sent out</button>' +
+         '</div></div>';
+
+    // status actions
+    const next = NEXT_STEP[o.status];
+    h += '<div class="dsect"><div class="dlabel">status</div><div class="btn-row">';
+    if(next === 'sent'){
+      h += '<button class="btn green" data-dispatch="' + esc(o.id) + '">mark sent + notify</button>';
+    } else if(next){
+      h += '<button class="btn green" data-next="' + esc(o.id) + '">mark ' + next + '</button>';
+    }
+    h += '<button class="btn ghost" data-paid="' + esc(o.id) + '">' + (o.paid ? 'mark unpaid' : 'mark paid') + '</button>';
+    h += '<button class="btn ghost" data-editid="' + esc(o.id) + '">edit order</button>';
+    h += '</div><div class="btn-row" style="margin-top:8px">' +
+           '<select data-setstatus="' + esc(o.id) + '" style="flex:1;background:#fff;border:1.5px solid var(--border);border-radius:11px;padding:12px">' +
+             STATUSES.map(s => '<option value="' + s + '"' + (s === o.status ? ' selected' : '') + '>' + s + '</option>').join('') +
+           '</select>' +
+           '<button class="btn ghost" data-del="' + esc(o.id) + '" style="flex:0 0 auto;color:var(--red)">delete</button>' +
+         '</div></div>';
+
+    h += '<div class="ometa">' + esc(o.id) + '</div>';
+    h += '</div>';
+  }
+  return h + '</div>';
+}
+
+// ── PACKING ──
+function renderPack(){
+  const sel = Object.keys(packStat).filter(k => packStat[k]);
+  el('p-chips').innerHTML = [['new','to pack'],['packed','already packed']].map(c =>
+    '<button class="chip' + (packStat[c[0]] ? ' on' : '') + '" data-pstat="' + c[0] + '">' + c[1] + '</button>').join('');
+
+  const orders = ORDERS.filter(o => sel.indexOf(o.status) > -1);
+  const ticks  = JSON.parse(localStorage.getItem('cronch_pack_ticks') || '{}');
+
+  // aggregate jars
+  const agg = {};
+  orders.forEach(o => itemsOf(o).forEach(i => {
+    const n = shortName(i.name);
+    agg[n] = (agg[n] || 0) + (Number(i.qty) || 0);
+  }));
+  const names   = Object.keys(agg).sort();
+  const totJars = names.reduce((n, k) => n + agg[k], 0);
+
+  let h = '<div class="packsum"><div class="packsum-n">' + totJars + '</div>' +
+          '<div class="packsum-l">jars to pack · ' + orders.length + ' order' + (orders.length === 1 ? '' : 's') + '</div></div>';
+
+  if(!totJars){
+    el('p-body').innerHTML = h + '<div class="empty">Nothing to pack for the selected statuses.</div>';
+    return;
+  }
+
+  // group by flavour
+  const flavours = ['Original','Spicy','Hot Honey','Meat'];
+  const grouped  = {};
+  names.forEach(n => {
+    const fl = flavours.find(f => n.indexOf(f) === 0) || 'Other';
+    (grouped[fl] = grouped[fl] || []).push(n);
+  });
+
+  h += '<div class="packnote">Tick off as you pack. Ticks are kept on this device only and clear when you change status.</div>';
+
+  Object.keys(grouped).forEach(fl => {
+    const sub = grouped[fl].reduce((n, k) => n + agg[k], 0);
+    h += '<div class="packgrp"><div class="packgrp-h"><span>' + esc(fl) + '</span><span>' + sub + '</span></div>';
+    grouped[fl].forEach(n => {
+      const on = !!ticks['agg:' + n];
+      h += '<div class="packrow' + (on ? ' done' : '') + '">' +
+             '<button class="packbox' + (on ? ' on' : '') + '" data-tick="agg:' + esc(n) + '">' + (on ? '✓' : '') + '</button>' +
+             '<span class="packrow-n">' + esc(n.replace(fl + ' — ', '')) + '</span>' +
+             '<span class="packrow-q">' + agg[n] + '</span>' +
+           '</div>';
+    });
+    h += '</div>';
+  });
+
+  // per-order checklist
+  h += '<div class="dlabel" style="padding:18px 2px 8px">order by order</div>';
+  orders.forEach(o => {
+    h += '<div class="packgrp"><div class="packgrp-h"><span>' + esc(o.name || 'no name') + '</span>' +
+         '<span style="font-family:\'DM Sans\',sans-serif;font-size:12px;color:var(--muted);font-weight:400">' +
+         esc(isCourier(o) ? 'courier' : (isPickup(o) ? 'pickup' : 'porter')) + '</span></div>';
+    itemsOf(o).forEach(i => {
+      h += '<div class="packrow"><span class="packrow-n">' + esc(shortName(i.name)) + '</span>' +
+           '<span class="packrow-q">' + esc(i.qty) + '</span></div>';
+    });
+    h += '<div class="packrow">' +
+           '<span class="packrow-n"></span>' +
+           (o.status === 'packed'
+             ? '<span class="pill packed">packed</span>'
+             : '<button class="btn green sm" data-packed="' + esc(o.id) + '">packed</button>') +
+         '</div></div>';
+  });
+
+  el('p-body').innerHTML = h;
+}
+
+// ── SEND: one lane per fulfilment type ──
+function sendPool(kind){
+  return ORDERS.filter(o => {
+    if(o.status === 'sent' || o.status === 'cancelled') return false;
+    return modeShort(o) === kind;
+  });
+}
+
+function renderCourier(){
+  const lanes = [['courier','Courier'],['porter','Porter'],['pickup','Pickup']];
+
+  // land on a lane that has something packed and ready, unless you picked one yourself
+  if(!sendTabPicked && !sendPool(sendTab).some(o => o.status === 'packed')){
+    const ready = lanes.find(l => sendPool(l[0]).some(o => o.status === 'packed'));
+    if(ready) sendTab = ready[0];
+  }
+
+  el('c-chips').innerHTML = lanes.map(l => {
+    const pool   = sendPool(l[0]);
+    const packed = pool.filter(o => o.status === 'packed').length;
+    return '<button class="chip' + (sendTab === l[0] ? ' on' : '') + '" data-cfilter="' + l[0] + '">' +
+           l[1] + '<b>' + pool.length + '</b>' +
+           (packed ? '<i class="rdy">' + packed + ' packed</i>' : '') + '</button>';
+  }).join('');
+
+
+
+  if(sendTab === 'courier') return renderLaneCourier();
+  if(sendTab === 'porter')  return renderLanePorter();
+  return renderLanePickup();
+}
+
+// Courier: tick several, hand the whole list over at once
+// packed and ready at the top of every lane
+function laneSort(pool){
+  const r = o => o.status === 'packed' ? 0 : 1;
+  return pool.slice().sort((a, b) => r(a) - r(b));
+}
+function elsewhereNote(){
+  const lanes = [['courier','Courier'],['porter','Porter'],['pickup','Pickup']];
+  const other = lanes.filter(l => l[0] !== sendTab)
+                     .map(l => [l[1], sendPool(l[0]).filter(o => o.status === 'packed').length])
+                     .filter(x => x[1]);
+  if(!other.length) return '';
+  return '<div class="flagrow" style="margin:0 0 10px">Also packed and ready: ' +
+         other.map(x => x[1] + ' in ' + x[0]).join(', ') + '</div>';
+}
+function renderLaneCourier(){
+  const pool = laneSort(sendPool('courier'));
+  Object.keys(sel).forEach(k => { if(!pool.some(o => o.id === k)) delete sel[k]; });
+  const picked = pool.filter(o => sel[o.id]);
+
+  let h = elsewhereNote() + '<div class="packnote">Tick the parcels going out, then hand the whole list to your courier person in one message.</div>';
+  if(!pool.length){
+    el('c-body').innerHTML = h + '<div class="empty">No courier parcels waiting.</div>';
+    return;
+  }
+
+  h += '<div class="btn-row" style="margin-bottom:10px">' +
+         '<button class="btn ghost sm" id="c-all">select all</button>' +
+         '<button class="btn ghost sm" id="c-none">clear</button></div>';
+
+  pool.forEach(o => {
+    const on = !!sel[o.id];
+    let w = 0;
+    itemsOf(o).forEach(i => {
+      const p = COURIER_PRODS.find(x => x.name === i.name);
+      w += (p ? p.wKg : 0.35) * (Number(i.qty) || 0);
+    });
+    h += '<div class="crow' + (on ? ' on' : '') + '" data-csel="' + esc(o.id) + '">' +
+           '<button class="packbox' + (on ? ' on' : '') + '">' + (on ? '✓' : '') + '</button>' +
+           '<div class="crow-main"><div class="crow-n">' + esc(o.name || 'no name') + '</div>' +
+             '<div class="crow-m">' + esc(o.state || 'courier') + (o.pincode ? ' · ' + esc(o.pincode) : '') +
+               ' · ' + jarCount(o) + ' jar' + (jarCount(o) === 1 ? '' : 's') +
+               ' · ' + (Math.round(w * 10) / 10) + 'kg' + (o.paid ? '' : ' · not paid') + '</div></div>' +
+           '<span class="pill ' + o.status + '">' + o.status + '</span></div>';
+  });
+
+  h += '<div class="cbar"><div class="cbar-t"><b>' + picked.length + '</b> selected' +
+         (picked.length ? ' · ' + picked.reduce((n, o) => n + jarCount(o), 0) + ' jars' : '') + '</div>' +
+         '<div class="field" style="margin-bottom:8px"><label>going with</label><select id="c-name">' + courierOptions(courierName) + '</select></div>' +
+         '<div class="btn-row">' +
+           (COURIER_WA ? '<button class="btn" id="c-send"' + (picked.length ? '' : ' disabled style="opacity:.4"') + '>send to courier</button>' : '') +
+           '<button class="btn ghost" id="c-copy"' + (picked.length ? '' : ' disabled style="opacity:.4"') + '>copy list</button>' +
+           '<button class="btn green" id="c-mark"' + (picked.length ? '' : ' disabled style="opacity:.4"') + '>mark ' + (picked.length || '') + ' sent</button>' +
+         '</div></div>';
+
+  el('c-body').innerHTML = h;
+}
+
+// Porter: book the ride, then tell the customer it is moving
+function renderLanePorter(){
+  const pool = laneSort(sendPool('porter'));
+  let h = elsewhereNote() + '<div class="packnote">Copy the drop details into Porter for Business, book the ride, then mark it sent. That messages the customer.</div>';
+  if(!pool.length){
+    el('c-body').innerHTML = h + '<div class="empty">No Porter deliveries waiting.</div>';
+    return;
+  }
+  pool.forEach(o => {
+    h += '<div class="ocard"><div class="ohead">' +
+           '<div class="ohead-main"><div class="oname">' + esc(o.name || 'no name') + '</div>' +
+             '<div class="ometa">' + jarCount(o) + ' jar' + (jarCount(o) === 1 ? '' : 's') +
+               (o.pincode ? ' · ' + esc(o.pincode) : '') + (o.paid ? '' : ' · not paid') + '</div></div>' +
+           '<div class="ohead-right"><div class="ototal">Rs.' + (o.total || 0) + '</div>' +
+             '<span class="pill ' + o.status + '">' + o.status + '</span></div></div>';
+    h += '<div class="odetail">' +
+           '<div class="dsect"><div class="dlabel">drop address</div><div class="dtext">' + esc(o.address || 'no address') +
+             (o.pincode ? '<br>Kochi ' + esc(o.pincode) : '') + '</div></div>' +
+           '<div class="dsect"><div class="dlabel">phone</div><div class="dtext">' +
+             '<a href="tel:' + esc(o.phone) + '">' + esc(prettyPhone(o.phone)) + '</a></div></div>' +
+           '<div class="field"><label>Porter tracking link or rider number (optional)</label>' +
+             '<input type="text" data-f="tracking" data-oid="' + esc(o.id) + '" value="' + esc(o.tracking || '') + '" placeholder="paste from Porter"></div>' +
+           '<div class="btn-row">' +
+             '<button class="btn ghost sm" data-copy="' + esc(o.id) + '">copy for Porter</button>' +
+             (o.status === 'new' ? '<button class="btn ghost sm" data-packed="' + esc(o.id) + '">packed</button>' : '') +
+             '<button class="btn green sm" data-porterout="' + esc(o.id) + '">mark sent + notify</button>' +
+           '</div></div></div>';
+  });
+  el('c-body').innerHTML = h;
+}
+
+// Pickup: tell them it is ready, mark it when they take it
+function renderLanePickup(){
+  const pool = laneSort(sendPool('pickup'));
+  let h = elsewhereNote() + '<div class="packnote">Tell them it is ready, then mark it collected when they take it.</div>';
+  if(!pool.length){
+    el('c-body').innerHTML = h + '<div class="empty">No pickups waiting.</div>';
+    return;
+  }
+  pool.forEach(o => {
+    h += '<div class="ocard"><div class="ohead">' +
+           '<div class="ohead-main"><div class="oname">' + esc(o.name || 'no name') + '</div>' +
+             '<div class="ometa">' + jarCount(o) + ' jar' + (jarCount(o) === 1 ? '' : 's') +
+               ' · ' + (o.paid ? 'paid' : 'collect Rs.' + (o.total || 0)) + '</div></div>' +
+           '<div class="ohead-right"><div class="ototal">Rs.' + (o.total || 0) + '</div>' +
+             '<span class="pill ' + o.status + '">' + o.status + '</span></div></div>';
+    h += '<div class="odetail">' +
+           '<div class="dsect"><div class="dlabel">phone</div><div class="dtext">' +
+             '<a href="tel:' + esc(o.phone) + '">' + esc(prettyPhone(o.phone)) + '</a></div></div>' +
+           '<div class="btn-row">' +
+             (o.status === 'new' ? '<button class="btn ghost sm" data-packed="' + esc(o.id) + '">packed</button>' : '') +
+             '<button class="btn ghost sm" data-wa="packed" data-oid="' + esc(o.id) + '">tell them it is ready</button>' +
+             (o.paid ? '' : '<button class="btn ghost sm" data-paid="' + esc(o.id) + '">mark paid</button>') +
+             '<button class="btn green sm" data-collected="' + esc(o.id) + '">collected</button>' +
+           '</div></div></div>';
+  });
+  el('c-body').innerHTML = h;
+}
+
+async function markBatchSent(){
+  const list = ORDERS.filter(o => sel[o.id]);
+  if(!list.length) return;
+  const who = (el('c-name') && el('c-name').value.trim()) || courierName || null;
+  for(const o of list){
+    await patchOrder(o.id, {
+      status:'sent',
+      dispatched_at:new Date().toISOString(),
+      courier: o.courier || who
+    }, true);
+  }
+  sel = {};
+  toast(list.length + ' marked sent');
+  view = 'orders';
+  oFilter = 'sent';
+  sSort = 'status';
+  render();
+}
+
+// ── SENT PARCELS: payment and AWB tracking, shown inside Orders ──
+function awbTag(o){
+  if(!o.tracking)     return '<span class="tag awb-no">no AWB</span>';
+  if(!o.awb_sent_at)  return '<span class="tag awb-send">AWB to send</span>';
+  return '<span class="tag awb-ok">AWB sent</span>';
+}
+function sentCard(o){
+  let h = '<div class="ocard"><div class="ohead">' +
+    '<div class="ohead-main">' +
+      '<div class="oname">' + esc(o.name || 'no name') + '</div>' +
+      '<div class="ometa" style="margin-top:6px">' + awbTag(o) +
+        '<span class="tag">' + esc(modeShort(o)) + '</span></div>' +
+      '<div class="ometa">' + esc(o.courier || 'no courier set') +
+        (o.dispatched_at ? ' · sent ' + fmtDate(o.dispatched_at) : '') +
+        (o.awb_sent_at ? ' · told ' + fmtDate(o.awb_sent_at) : '') + '</div>' +
+    '</div>' +
+    '<div class="ohead-right"><div class="ototal">Rs.' + (o.total || 0) + '</div>' +
+      '<span class="pill ' + (o.paid ? 'sent' : 'new') + '">' + (o.paid ? 'paid' : 'unpaid') + '</span>' +
+    '</div></div>';
+
+  h += '<div class="odetail">';
+  h += '<div class="awbwrap">' +
+         '<div class="field"><label>courier</label><select data-f="courier" data-oid="' + esc(o.id) + '">' + courierOptions(o.courier) + '</select></div>' +
+         '<div class="field"><label>AWB number</label><input type="text" data-f="tracking" data-oid="' + esc(o.id) + '" value="' + esc(o.tracking || '') + '" placeholder="paste AWB"></div>' +
+       '</div>';
+
+  h += '<div class="btn-row" style="margin-top:10px">';
+  if(o.tracking){
+    h += '<button class="btn' + (o.awb_sent_at ? ' ghost' : '') + '" data-sendawb="' + esc(o.id) + '">' +
+         (o.awb_sent_at ? 'send AWB again' : 'send AWB to customer') + '</button>';
+  }
+  h += '<button class="btn ghost" data-paid="' + esc(o.id) + '">mark ' + (o.paid ? 'unpaid' : 'paid') + '</button>' +
+       '<button class="btn ghost" data-copy="' + esc(o.id) + '">copy details</button>' +
+       '<button class="btn ghost" data-editid="' + esc(o.id) + '">edit order</button>' +
+       '</div>';
+  h += '<div class="ometa" style="margin-top:10px">' + esc(o.id) + '</div></div></div>';
+  return h;
+}
+
+// ── EDITOR ──
+function blankOrder(){
+  return {
+    id:null, name:'', phone:'', email:'', mode:'kochi-porter',
+    address:'', state:'Kerala', pincode:'', qtys:{}, extra:[],
+    notes:'', paid:false, status:'new', source:'whatsapp', shipOverride:null
+  };
+}
+function orderToEd(o){
+  const qtys = {}, extra = [];
+  const list = KOCHI_PRODS.concat(COURIER_PRODS);
+  itemsOf(o).forEach(i => {
+    const p = list.find(x => x.name === i.name);
+    if(p) qtys[p.id] = (qtys[p.id] || 0) + (Number(i.qty) || 0);
+    else   extra.push({name:i.name, qty:Number(i.qty) || 0, price:Number(i.price) || 0});
+  });
+  let mode = 'courier';
+  if(!isCourier(o)) mode = isPickup(o) ? 'kochi-pickup' : 'kochi-porter';
+  return {
+    id:o.id, name:o.name || '', phone:o.phone || '', email:o.email || '', mode:mode,
+    address:o.address || '', state:o.state || (mode === 'courier' ? '' : 'Kerala'), pincode:o.pincode || '',
+    qtys:qtys, extra:extra, notes:o.notes || '', paid:!!o.paid, status:o.status || 'new',
+    source:o.source || 'form', shipOverride:null, _origShipping:o.shipping || 0
+  };
+}
+function edProds(){ return ed.mode === 'courier' ? COURIER_PRODS : KOCHI_PRODS; }
+function edItems(){
+  const items = edProds().filter(p => (ed.qtys[p.id] || 0) > 0)
+                  .map(p => ({name:p.name, qty:ed.qtys[p.id], price:p.price}));
+  return items.concat(ed.extra);
+}
+function edSubtotal(){ return edItems().reduce((s, i) => s + (i.price * i.qty), 0); }
+function edBilledKg(){
+  if(ed.mode !== 'courier') return 0;
+  const w = COURIER_PRODS.reduce((s, p) => s + ((ed.qtys[p.id] || 0) * p.wKg), 0);
+  return w === 0 ? 0 : Math.max(1, Math.ceil(w));
+}
+function edShipping(){
+  if(ed.shipOverride !== null && ed.shipOverride !== '') return Number(ed.shipOverride) || 0;
+  if(ed.mode !== 'courier') return 0;
+  const z = getZone(ed.state);
+  return z ? z.rate * edBilledKg() : 0;
+}
+function edModeLabel(){
+  if(ed.mode === 'courier')      return 'India-wide Courier';
+  if(ed.mode === 'kochi-pickup') return 'Kochi — Self pickup';
+  return 'Kochi — Porter delivery';
+}
+
+function renderEditor(){
+  if(!ed) ed = blankOrder();
+  const prods = edProds();
+  const sub   = edSubtotal(), ship = edShipping();
+
+  let h = '<div class="ecard"><div class="ecard-h">' + (ed.id ? 'editing ' + esc(ed.id) : 'new order') + '</div>' +
+          '<div class="modeopts">' +
+            ['kochi-porter','kochi-pickup','courier'].map(m =>
+              '<button class="modeopt' + (ed.mode === m ? ' on' : '') + '" data-mode="' + m + '">' +
+              (m === 'courier' ? 'Courier<br>India wide' : (m === 'kochi-pickup' ? 'Pickup<br>Kochi' : 'Porter<br>Kochi')) +
+              '</button>').join('') +
+          '</div></div>';
+
+  // items — one flavour open at a time, so the list stays short
+  const flavours = [...new Set(prods.map(p => p.flavour))];
+  if(edFlav === undefined || (edFlav !== null && flavours.indexOf(edFlav) === -1)) edFlav = flavours[0];
+  h += '<div class="ecard"><div class="ecard-h">items</div>';
+  flavours.forEach(fl => {
+    const grp  = prods.filter(p => p.flavour === fl);
+    const fq   = grp.reduce((n, p) => n + (ed.qtys[p.id] || 0), 0);
+    const open = edFlav === fl;
+    h += '<button class="eflav' + (open ? ' open' : '') + (fq ? ' has' : '') + '" data-eflav="' + esc(fl) + '">' +
+           '<span class="eflav-n">' + esc(fl) + '</span>' +
+           (fq ? '<span class="eflav-c">' + fq + '</span>' : '') +
+           '<span class="eflav-ch">' + (open ? '&#9662;' : '&#8250;') + '</span>' +
+         '</button>';
+    if(open){
+      grp.forEach(p => {
+        const q = ed.qtys[p.id] || 0;
+        h += '<div class="prow">' +
+               '<span class="prow-n">' + esc(p.size) + ' <small>' + esc(p.note) + ' · Rs.' + p.price + '</small></span>' +
+               '<span class="iqc">' +
+                 '<button class="iq-btn minus' + (q === 0 ? ' dim' : '') + '" data-pid="' + p.id + '" data-d="-1">&minus;</button>' +
+                 '<span class="iq-n">' + q + '</span>' +
+                 '<button class="iq-btn" data-pid="' + p.id + '" data-d="1">+</button>' +
+               '</span></div>';
+      });
+    }
+  });
+  if(ed.extra.length){
+    h += '<div class="flavhead">other lines</div>';
+    ed.extra.forEach((x, ix) => {
+      h += '<div class="prow"><span class="prow-n">' + esc(shortName(x.name)) +
+           ' <small>Rs.' + x.price + ' x ' + x.qty + '</small></span>' +
+           '<button class="btn ghost sm" data-rmextra="' + ix + '">remove</button></div>';
+    });
+  }
+  h += '</div>';
+
+  // what is in the order — sits right above the address fields so it can be checked while typing
+  const picked = edItems();
+  if(picked.length){
+    h += '<div class="ecard"><div class="ecard-h">in this order</div>';
+    picked.forEach(i => {
+      h += '<div class="drow"><span class="lbl">' + esc(shortName(i.name)) + ' &times; ' + i.qty +
+           '</span><span>Rs.' + (i.price * i.qty) + '</span></div>';
+    });
+    h += '</div>';
+  }
+
+  // customer
+  h += '<div class="ecard"><div class="ecard-h">customer</div>' +
+         '<div class="field"><label>name</label><input type="text" data-e="name" value="' + esc(ed.name) + '"></div>' +
+         '<div class="field"><label>whatsapp number</label><input type="tel" data-e="phone" value="' + esc(ed.phone) + '" placeholder="98765 43210"></div>' +
+         '<div class="field"><label>email (optional)</label><input type="email" data-e="email" value="' + esc(ed.email) + '"></div>';
+  if(ed.mode !== 'kochi-pickup'){
+    h += '<div class="field"><label>address</label><textarea data-e="address">' + esc(ed.address) + '</textarea></div>';
+    if(ed.mode === 'courier'){
+      h += '<div class="field"><label>state</label><select data-e="state"><option value="">— select —</option>' +
+           STATES.map(s => '<option value="' + esc(s) + '"' + (ed.state === s ? ' selected' : '') + '>' + esc(s) + '</option>').join('') +
+           '</select></div>';
+    }
+    h += '<div class="field"><label>pincode</label><input type="text" data-e="pincode" inputmode="numeric" value="' + esc(ed.pincode) + '"></div>';
+  }
+  h += '<div class="field"><label>notes</label><textarea data-e="notes" placeholder="private note">' + esc(ed.notes) + '</textarea></div>';
+  h += '</div>';
+
+  // totals
+  h += '<div class="ecard"><div class="ecard-h">total</div><div class="esum">' +
+         'items <b>Rs.' + sub + '</b>';
+  if(ed.mode === 'courier'){
+    const z = getZone(ed.state);
+    h += '<br>shipping <b>Rs.' + ship + '</b>' +
+         (z ? ' <span style="color:var(--muted);font-size:12px">' + esc(z.label) + ' · ' + edBilledKg() + 'kg @ Rs.' + z.rate + '</span>' : '');
+  }
+  h += '<br>total <b>Rs.' + (sub + ship) + '</b></div>';
+  if(ed.mode === 'courier'){
+    h += '<div class="field" style="margin-top:10px"><label>override shipping (optional)</label>' +
+         '<input type="text" data-e="shipOverride" inputmode="numeric" value="' + esc(ed.shipOverride === null ? '' : ed.shipOverride) + '" placeholder="leave blank to use the zone rate"></div>';
+  }
+  h += '<div class="field"><label>status</label><select data-e="status">' +
+       STATUSES.map(s => '<option value="' + s + '"' + (ed.status === s ? ' selected' : '') + '>' + s + '</option>').join('') +
+       '</select></div>';
+  h += '<div class="field"><label>payment</label><select data-e="paid"><option value="no"' + (ed.paid ? '' : ' selected') + '>not paid</option><option value="yes"' + (ed.paid ? ' selected' : '') + '>paid</option></select></div>';
+  h += '</div>';
+
+  h += '<div class="btn-row"><button class="btn ghost" id="e-cancel">cancel</button></div>';
+
+  // sticky bar — what is in the order and the total, visible while you fill in the address
+  const jars  = picked.reduce((n, i) => n + i.qty, 0);
+  const brief = picked.map(i => shortName(i.name).replace(' — ', ' ') + ' x' + i.qty).join(', ');
+
+  h += '<div class="ebarwrap">';
+  if(edBarOpen && picked.length){
+    h += '<div class="ebarlist">';
+    picked.forEach(i => {
+      h += '<div class="ebarrow"><span>' + esc(shortName(i.name).replace(' — ', ' ')) + '</span>' +
+           '<span class="ebarrow-q">x' + i.qty + '</span>' +
+           '<span class="ebarrow-p">Rs.' + (i.price * i.qty) + '</span></div>';
+    });
+    h += '<div class="ebarrow tot"><span>items</span><span class="ebarrow-q"></span><span class="ebarrow-p">Rs.' + sub + '</span></div>';
+    if(ship) h += '<div class="ebarrow tot"><span>shipping</span><span class="ebarrow-q"></span><span class="ebarrow-p">Rs.' + ship + '</span></div>';
+    h += '</div>';
+  }
+  h += '<div class="ebar">' +
+         '<button class="ebar-l" id="e-bar-toggle">' +
+           (picked.length
+             ? '<span class="ebar-items">' + esc(brief) + '</span>' +
+               '<span class="ebar-tot">' + jars + ' jar' + (jars === 1 ? '' : 's') + ' · Rs.' + (sub + ship) +
+               (ship ? ' with shipping' : '') + ' <i>' + (edBarOpen ? '&#9662; less' : '&#9652; details') + '</i></span>'
+             : '<span class="ebar-items empty">no jars added yet</span>') +
+         '</button>' +
+         '<button class="btn" id="e-save" style="width:auto;flex:0 0 auto">' + (ed.id ? 'save' : 'add order') + '</button>' +
+       '</div></div>';
+
+  el('e-body').innerHTML = h;
+}
+
+async function saveEditor(){
+  if(!ed.name.trim() || !ed.phone.trim()){ toast('Name and phone are needed'); return; }
+  const items = edItems();
+  if(!items.length){ toast('Add at least one jar'); return; }
+  const sub = edSubtotal(), ship = edShipping();
+
+  const row = {
+    name:ed.name.trim(), phone:ed.phone.trim(), email:ed.email.trim() || null,
+    mode:edModeLabel(),
+    address: ed.mode === 'kochi-pickup' ? ('Self pickup — Kakkanad, Kochi\n' + MAPS) : ed.address.trim(),
+    state: ed.mode === 'courier' ? (ed.state || null) : 'Kerala',
+    pincode: ed.pincode.trim() || null,
+    items:items, subtotal:sub, shipping:ship, total:sub + ship,
+    status:ed.status, paid:ed.paid, notes:ed.notes.trim() || null
+  };
+
+  if(ed.id){
+    const ok = await patchOrder(ed.id, row, true);
+    if(!ok) return;
+    toast('Order updated');
+  } else {
+    row.id     = 'WA-' + Date.now();
+    row.source = ed.source || 'whatsapp';
+    const { error } = await db.from('orders').insert(row);
+    if(error){ toast('Could not add: ' + error.message); return; }
+    toast('Order added');
+    await loadOrders();
+  }
+  ed = null;
+  view = 'orders';
+  render();
+}
+
+// ════════════════════════════════════════════════════════════
+// EVENTS — one delegated block, no inline handlers
+// ════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function(){
+
+  checkSession();
+  db.auth.onAuthStateChange(() => checkSession());
+
+  el('g-send').addEventListener('click', signIn);
+  el('g-email').addEventListener('keydown', e => { if(e.key === 'Enter') el('g-pass').focus(); });
+  el('g-pass').addEventListener('keydown', e => { if(e.key === 'Enter') signIn(); });
+
+  el('btn-refresh').addEventListener('click', () => { toast('Refreshing'); loadOrders(); });
+  el('btn-logout').addEventListener('click', async () => { await db.auth.signOut(); checkSession(); });
+
+  document.querySelector('.tabs').addEventListener('click', e => {
+    const t = e.target.closest('.tab');
+    if(!t) return;
+    view = t.dataset.view;
+    if(view === 'edit' && !ed){ ed = blankOrder(); edFlav = undefined; }
+    render();
+  });
+
+  el('o-search').addEventListener('input', e => { oSearch = e.target.value.trim(); renderOrders(); });
+
+  el('o-list').addEventListener('click', e => {
+    const sc = e.target.closest('[data-sort]');
+    if(sc){ sSort = sc.dataset.sort; renderOrders(); }
+  });
+
+  el('o-chips').addEventListener('click', e => {
+    const c = e.target.closest('.chip');
+    if(c){ oFilter = c.dataset.filter; renderOrders(); }
+  });
+
+  el('p-chips').addEventListener('click', e => {
+    const c = e.target.closest('.chip');
+    if(c){ packStat[c.dataset.pstat] = !packStat[c.dataset.pstat]; renderPack(); }
+  });
+
+  // ── ORDERS: clicks ──
+  el('o-list').addEventListener('click', async e => {
+    const head = e.target.closest('[data-toggle]');
+    if(head){
+      const id = head.dataset.toggle;
+      openIds[id] = !openIds[id];
+      renderOrders();
+      return;
+    }
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const id = btn.dataset.oid || btn.dataset.next || btn.dataset.paid || btn.dataset.editid ||
+               btn.dataset.del || btn.dataset.dispatch || btn.dataset.copy || btn.dataset.sendawb;
+    const o  = ORDERS.find(x => x.id === id);
+    if(!o) return;
+
+    if(btn.dataset.wa){
+      const kind = btn.dataset.wa;
+      const text = kind === 'confirm' ? msgConfirm(o) : (kind === 'packed' ? msgPacked(o) : msgDispatch(o));
+      window.open(waLink(o.phone, text), '_blank');
+      return;
+    }
+    if(btn.dataset.copy){
+      copyText(courierBlock(o), 'Name, number and address copied');
+      return;
+    }
+    if(btn.dataset.tocourier){
+      window.open(waLink(COURIER_WA, courierBlock(o)), '_blank');
+      return;
+    }
+    if(btn.dataset.next){
+      await patchOrder(o.id, {status:NEXT_STEP[o.status]});
+      return;
+    }
+    if(btn.dataset.sendawb){
+      const card = btn.closest('.ocard');
+      const cour = card.querySelector('[data-f="courier"]');
+      const trk  = card.querySelector('[data-f="tracking"]');
+      const patch = {
+        courier:(cour && cour.value.trim()) || o.courier || null,
+        tracking:(trk && trk.value.trim()) || o.tracking || null,
+        awb_sent_at:new Date().toISOString()
+      };
+      if(!patch.tracking){ toast('Add the AWB number first'); return; }
+      const ok = await patchOrder(o.id, patch, true);
+      if(!ok) return;
+      toast('Opening WhatsApp');
+      window.open(waLink(o.phone, msgAWB(Object.assign({}, o, patch))), '_blank');
+      return;
+    }
+    if(btn.dataset.dispatch){
+      const card = btn.closest('.ocard');
+      const cour = card.querySelector('[data-f="courier"]');
+      const trk  = card.querySelector('[data-f="tracking"]');
+      const patch = {
+        status:'sent',
+        dispatched_at:new Date().toISOString(),
+        courier:(cour && cour.value.trim()) || (isCourier(o) ? null : 'Porter'),
+        tracking:(trk && trk.value.trim()) || null
+      };
+      const ok = await patchOrder(o.id, patch, true);
+      if(!ok) return;
+      toast('Marked sent. Opening WhatsApp.');
+      window.open(waLink(o.phone, msgDispatch(Object.assign({}, o, patch))), '_blank');
+      return;
+    }
+    if(btn.dataset.paid){
+      await patchOrder(o.id, {paid:!o.paid});
+      return;
+    }
+    if(btn.dataset.editid){
+      ed = orderToEd(o);
+      edFlav = undefined;
+      view = 'edit';
+      render();
+      window.scrollTo(0, 0);
+      return;
+    }
+    if(btn.dataset.del){
+      if(!confirm('Delete this order permanently? This cannot be undone.\n\n' + (o.name || '') + ' · Rs.' + (o.total || 0))) return;
+      const { error } = await db.from('orders').delete().eq('id', o.id);
+      if(error){ toast('Delete failed: ' + error.message); return; }
+      ORDERS = ORDERS.filter(x => x.id !== o.id);
+      toast('Deleted');
+      render();
+      return;
+    }
+  });
+
+  // ── ORDERS: field edits saved on blur ──
+  el('o-list').addEventListener('change', async e => {
+    const sel = e.target.closest('[data-setstatus]');
+    if(sel){ await patchOrder(sel.dataset.setstatus, {status:sel.value}); return; }
+    const f = e.target.closest('[data-f]');
+    if(f){
+      const patch = {};
+      patch[f.dataset.f] = f.value.trim() || null;
+      await patchOrder(f.dataset.oid, patch);
+    }
+  });
+
+  // ── COURIER HANDOVER ──
+  el('c-chips').addEventListener('click', e => {
+    const c = e.target.closest('.chip');
+    if(c){ sendTab = c.dataset.cfilter; sendTabPicked = true; sel = {}; renderCourier(); }
+  });
+
+  el('c-body').addEventListener('click', async e => {
+    if(e.target.id === 'c-all'){ sendPool('courier').forEach(o => { sel[o.id] = true; }); renderCourier(); return; }
+    if(e.target.id === 'c-none'){ sel = {}; renderCourier(); return; }
+
+    if(e.target.id === 'c-copy' || e.target.id === 'c-send'){
+      const list = ORDERS.filter(o => sel[o.id]);
+      if(!list.length) return;
+      courierName = (el('c-name') && el('c-name').value.trim()) || courierName;
+      const text = courierBatch(list, courierName);
+      if(e.target.id === 'c-send') window.open(waLink(COURIER_WA, text), '_blank');
+      else copyText(text, list.length + ' orders copied');
+      return;
+    }
+    if(e.target.id === 'c-mark'){
+      const list = ORDERS.filter(o => sel[o.id]);
+      if(!list.length) return;
+      if(!demoConfirmBatch(list.length)) return;
+      markBatchSent();
+      return;
+    }
+    const btn = e.target.closest('button');
+    if(btn){
+      const id = btn.dataset.porterout || btn.dataset.collected || btn.dataset.packed ||
+                 btn.dataset.paid || btn.dataset.copy || btn.dataset.oid;
+      const o  = ORDERS.find(x => x.id === id);
+      if(o){
+        if(btn.dataset.copy){ copyText(courierBlock(o), 'Details copied'); return; }
+        if(btn.dataset.wa){
+          window.open(waLink(o.phone, msgPacked(o)), '_blank');
+          return;
+        }
+        if(btn.dataset.packed){ await patchOrder(o.id, {status:'packed'}); return; }
+        if(btn.dataset.paid){ await patchOrder(o.id, {paid:true}); return; }
+        if(btn.dataset.porterout){
+          const card  = btn.closest('.ocard');
+          const trk   = card.querySelector('[data-f="tracking"]');
+          const patch = {
+            status:'sent',
+            dispatched_at:new Date().toISOString(),
+            courier:o.courier || 'Porter',
+            tracking:(trk && trk.value.trim()) || o.tracking || null
+          };
+          const ok = await patchOrder(o.id, patch, true);
+          if(!ok) return;
+          toast('Marked sent. Opening WhatsApp.');
+          window.open(waLink(o.phone, msgDispatch(Object.assign({}, o, patch))), '_blank');
+          return;
+        }
+        if(btn.dataset.collected){
+          await patchOrder(o.id, {status:'sent', dispatched_at:new Date().toISOString(), courier:'Self pickup'});
+          return;
+        }
+      }
+    }
+    const row = e.target.closest('[data-csel]');
+    if(row){
+      const id = row.dataset.csel;
+      sel[id] = !sel[id];
+      renderCourier();
+    }
+  });
+
+  // tracking field in the Porter lane
+  el('c-body').addEventListener('change', async e => {
+    const f = e.target.closest('[data-f]');
+    if(f){
+      const patch = {};
+      patch[f.dataset.f] = f.value.trim() || null;
+      await patchOrder(f.dataset.oid, patch);
+    }
+  });
+
+  el('c-body').addEventListener('input', e => {
+    if(e.target.id === 'c-name') courierName = e.target.value;
+  });
+
+  // ── PACKING ──
+  el('p-body').addEventListener('click', async e => {
+    const tick = e.target.closest('[data-tick]');
+    if(tick){
+      const ticks = JSON.parse(localStorage.getItem('cronch_pack_ticks') || '{}');
+      const k = tick.dataset.tick;
+      ticks[k] = !ticks[k];
+      localStorage.setItem('cronch_pack_ticks', JSON.stringify(ticks));
+      renderPack();
+      return;
+    }
+    const mp = e.target.closest('[data-packed]');
+    if(mp){ await patchOrder(mp.dataset.packed, {status:'packed'}); }
+  });
+
+  // ── EDITOR ──
+  el('e-body').addEventListener('click', e => {
+    const m = e.target.closest('[data-mode]');
+    if(m){
+      ed.mode = m.dataset.mode;
+      if(ed.mode !== 'courier') ed.state = 'Kerala';
+      ed.qtys = {};
+      edFlav = undefined;
+      renderEditor();
+      return;
+    }
+    const fl = e.target.closest('[data-eflav]');
+    if(fl){
+      edFlav = (edFlav === fl.dataset.eflav) ? null : fl.dataset.eflav;
+      renderEditor();
+      return;
+    }
+    const q = e.target.closest('[data-pid]');
+    if(q){
+      const id = q.dataset.pid, d = parseInt(q.dataset.d, 10);
+      ed.qtys[id] = Math.max(0, (ed.qtys[id] || 0) + d);
+      renderEditor();
+      return;
+    }
+    const rm = e.target.closest('[data-rmextra]');
+    if(rm){ ed.extra.splice(parseInt(rm.dataset.rmextra, 10), 1); renderEditor(); return; }
+    if(e.target.closest('#e-bar-toggle')){ edBarOpen = !edBarOpen; renderEditor(); return; }
+    if(e.target.id === 'e-save')   { saveEditor(); return; }
+    if(e.target.id === 'e-cancel') { ed = null; view = 'orders'; render(); return; }
+  });
+
+  el('e-body').addEventListener('input', e => {
+    const f = e.target.closest('[data-e]');
+    if(!f) return;
+    const k = f.dataset.e;
+    if(k === 'paid') ed.paid = f.value === 'yes';
+    else if(k === 'shipOverride') ed.shipOverride = f.value.trim() === '' ? null : f.value.trim();
+    else ed[k] = f.value;
+  });
+  el('e-body').addEventListener('change', e => {
+    const f = e.target.closest('[data-e]');
+    if(!f) return;
+    const k = f.dataset.e;
+    if(k === 'paid') ed.paid = f.value === 'yes';
+    else ed[k] = f.value;
+    if(k === 'state' || k === 'shipOverride' || k === 'paid' || k === 'status') renderEditor();
+  });
+
+});
+</script>
+</body>
+</html>
