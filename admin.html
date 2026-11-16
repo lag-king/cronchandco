@@ -111,6 +111,7 @@ input,textarea,select,button{font-family:'DM Sans',sans-serif;font-size:16px}
 .packbox{width:26px;height:26px;border-radius:7px;border:2px solid var(--border);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;cursor:pointer;-webkit-appearance:none;padding:0}
 .packbox.on{background:var(--green);border-color:var(--green)}
 .packrow-n{flex:1;font-size:14px}
+.packrow-n b{font-weight:500}
 .packrow-q{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;min-width:36px;text-align:right}
 .packnote{font-size:12px;color:var(--muted);line-height:1.6;font-weight:300;padding:4px 2px 14px}
 
@@ -491,6 +492,11 @@ async function loadOrders(){
 }
 
 async function patchOrder(id, patch, quiet){
+  // never let an update run without a real order id: an empty filter would hit every row
+  if(!id || typeof id !== 'string'){
+    toast('Could not tell which order that was. Nothing changed.');
+    return false;
+  }
   const { error } = await db.from('orders').update(patch).eq('id', id);
   if(error){ toast('Save failed: ' + error.message); return false; }
   const o = ORDERS.find(x => x.id === id);
@@ -734,6 +740,20 @@ function orderCard(o){
 }
 
 // ── PACKING ──
+// every jar is either glass or plastic; 160g only exists in glass
+function jarKind(size){
+  if(/plastic/i.test(size)) return 'Plastic';
+  if(/glass/i.test(size))   return 'Glass';
+  return /160/.test(size) ? 'Glass' : 'Plastic';
+}
+// "Spicy — 280g glass" -> {flavour:'Spicy', size:'280g', kind:'Glass'}
+function splitJar(shortLabel){
+  const bits    = String(shortLabel).split(' — ');
+  const flavour = bits[0] || '';
+  const size    = bits[1] || '';
+  return {flavour:flavour, size:(size.match(/\d+\s*g/i) || [size])[0], kind:jarKind(size)};
+}
+
 function renderPack(){
   const sel = Object.keys(packStat).filter(k => packStat[k]);
   el('p-chips').innerHTML = [['new','to pack'],['packed','already packed']].map(c =>
@@ -742,14 +762,15 @@ function renderPack(){
   const orders = ORDERS.filter(o => sel.indexOf(o.status) > -1);
   const ticks  = JSON.parse(localStorage.getItem('cronch_pack_ticks') || '{}');
 
-  // aggregate jars
+  // one line per jar: kind, size, flavour
   const agg = {};
   orders.forEach(o => itemsOf(o).forEach(i => {
-    const n = shortName(i.name);
-    agg[n] = (agg[n] || 0) + (Number(i.qty) || 0);
+    const j   = splitJar(shortName(i.name));
+    const key = j.kind + '|' + j.size + '|' + j.flavour;
+    agg[key]  = (agg[key] || 0) + (Number(i.qty) || 0);
   }));
-  const names   = Object.keys(agg).sort();
-  const totJars = names.reduce((n, k) => n + agg[k], 0);
+  const keys    = Object.keys(agg);
+  const totJars = keys.reduce((n, k) => n + agg[k], 0);
 
   let h = '<div class="packsum"><div class="packsum-n">' + totJars + '</div>' +
           '<div class="packsum-l">jars to pack · ' + orders.length + ' order' + (orders.length === 1 ? '' : 's') + '</div></div>';
@@ -759,38 +780,40 @@ function renderPack(){
     return;
   }
 
-  // group by flavour
-  const flavours = ['Original','Spicy','Hot Honey','Meat'];
-  const grouped  = {};
-  names.forEach(n => {
-    const fl = flavours.find(f => n.indexOf(f) === 0) || 'Other';
-    (grouped[fl] = grouped[fl] || []).push(n);
-  });
+  h += '<div class="packnote">Grouped by jar. Tick as you fill them. Ticks live on this device only.</div>';
 
-  h += '<div class="packnote">Tick off as you pack. Ticks are kept on this device only and clear when you change status.</div>';
-
-  Object.keys(grouped).forEach(fl => {
-    const sub = grouped[fl].reduce((n, k) => n + agg[k], 0);
-    h += '<div class="packgrp"><div class="packgrp-h"><span>' + esc(fl) + '</span><span>' + sub + '</span></div>';
-    grouped[fl].forEach(n => {
-      const on = !!ticks['agg:' + n];
+  // glass crate first, then plastic; smallest size first inside each
+  ['Glass','Plastic'].forEach(kind => {
+    const mine = keys.filter(k => k.indexOf(kind + '|') === 0)
+                     .sort((a, b) => {
+                       const A = a.split('|'), B = b.split('|');
+                       return (parseInt(A[1], 10) || 0) - (parseInt(B[1], 10) || 0) || A[2].localeCompare(B[2]);
+                     });
+    if(!mine.length) return;
+    const sub = mine.reduce((n, k) => n + agg[k], 0);
+    h += '<div class="packgrp"><div class="packgrp-h"><span>' + kind + ' jars</span><span>' + sub + '</span></div>';
+    mine.forEach(k => {
+      const p  = k.split('|');
+      const on = !!ticks['agg:' + k];
       h += '<div class="packrow' + (on ? ' done' : '') + '">' +
-             '<button class="packbox' + (on ? ' on' : '') + '" data-tick="agg:' + esc(n) + '">' + (on ? '✓' : '') + '</button>' +
-             '<span class="packrow-n">' + esc(n.replace(fl + ' — ', '')) + '</span>' +
-             '<span class="packrow-q">' + agg[n] + '</span>' +
+             '<button class="packbox' + (on ? ' on' : '') + '" data-tick="agg:' + esc(k) + '">' + (on ? '✓' : '') + '</button>' +
+             '<span class="packrow-n"><b>' + esc(p[1]) + '</b> · ' + esc(p[2]) + '</span>' +
+             '<span class="packrow-q">' + agg[k] + '</span>' +
            '</div>';
     });
     h += '</div>';
   });
 
-  // per-order checklist
+  // then order by order, so you know what goes in which parcel
   h += '<div class="dlabel" style="padding:18px 2px 8px">order by order</div>';
   orders.forEach(o => {
     h += '<div class="packgrp"><div class="packgrp-h"><span>' + esc(o.name || 'no name') + '</span>' +
          '<span style="font-family:\'DM Sans\',sans-serif;font-size:12px;color:var(--muted);font-weight:400">' +
-         esc(isCourier(o) ? 'courier' : (isPickup(o) ? 'pickup' : 'porter')) + '</span></div>';
+         esc(modeShort(o)) + '</span></div>';
     itemsOf(o).forEach(i => {
-      h += '<div class="packrow"><span class="packrow-n">' + esc(shortName(i.name)) + '</span>' +
+      const j = splitJar(shortName(i.name));
+      h += '<div class="packrow"><span class="packrow-n"><b>' + esc(j.size) + ' ' + esc(j.kind.toLowerCase()) +
+           '</b> · ' + esc(j.flavour) + '</span>' +
            '<span class="packrow-q">' + esc(i.qty) + '</span></div>';
     });
     h += '<div class="packrow">' +
